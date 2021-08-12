@@ -1,0 +1,42 @@
+body {
+    height: 200px;
+    width: 120px;
+    outline: none;
+    margin: 10px;
+    border: none;
+    border-radius: 2px;   
+}
+
+.button {
+    height: 75px;
+    width: 100px;
+    outline: none;
+    border: none;
+    border-radius: 2px;   
+    background-color: #03a1fc;
+    color:whitesmoke;
+
+    text-align: center;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    text-decoration: none;
+    overflow: hidden;
+    cursor: pointer;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+
+    font-family: 'Courier New';
+
+}
+
+.button:hover {background-color: #3db8ff}
+
+.button:active {
+    background-color: #03a1fc;
+    box-shadow: 0 4px #666;
+}
+  
