@@ -1,9 +1,25 @@
 // background.js
 
+// *----*----*----* Globals *----*----*----*
 //global to store smartMarkNode
 smartMarkNode = null
+urlClassifier = null
 
+try {
+    importScripts("/libs/urlCategorizer.js")
+} catch (e) {
+    console.log(e)
+}
+
+// *----*----*----* On-Install Script *----*----*----*
 chrome.runtime.onInstalled.addListener(() => {
+    const url = chrome.runtime.getURL('/data/urlClasses.json');
+    fetch(url)
+        .then((response) => response.json()) //assuming file contains json
+        .then((urlMap) => {
+            urlClassifier = new UrlCategorizer(urlMap);
+        });
+
     chrome.bookmarks.getTree((tree) => {
         folderPresent = false
         tree[0].children[0].children.forEach(element => {
@@ -40,30 +56,43 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log(request.action)
     if (request.action === "get-bookmarks") {
         bookmarkTree = null
-        chrome.bookmarks.getTree((tree) =>
+        chrome.bookmarks.getSubTree(smartMarkNode.id, (tree) =>
             sendResponse({
                 ok: true,
                 bookmarks: tree
             })
         );
-
     }
-    console.log("Got here.")
     return true;
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === "save-bookmark") {
-        chrome.bookmarks.create({
-                'parentId': bookmarkBar.id,
-                'title': 'Extension bookmarks'
-            },
-            function (newFolder) {
-                console.log("added folder: " + newFolder.title);
-            },
-        );
-
+        saveBookmark(request.title, request.url)
     }
-    console.log("Got here.")
     return true;
 });
+
+function saveBookmark(title, url) {
+    createFolder(url).then(
+        (folder) => {
+            chrome.bookmarks.create({
+                    'parentId': folder.id,
+                    'title': title,
+                    'url': url
+                },
+                function (newBookmark) {
+                    console.log("Saved bookmark: ", newBookmark);
+
+                },
+            );
+        }
+    )
+}
+
+function createFolder(url) {
+    return chrome.bookmarks.create({
+        'parentId': smartMarkNode.id,
+        'title': urlClassifier.getUrlCategory(url)
+    });
+}

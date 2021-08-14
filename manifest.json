@@ -12,8 +12,8 @@
     "action": {
         "default_popup": "/popup/popup.html"
     },
-    "content_scripts": [{
-        "js": ["/packages/jquery.min.js", "/packages/jquery-ui.min.js", "/content.js"],
+    "web_accessible_resources": [{
+        "resources": ["/data/*.json"],
         "matches": ["http://*/*", "https://*/*"]
     }]
 }
