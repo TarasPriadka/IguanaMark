@@ -3,27 +3,28 @@ let getUrlButton = document.getElementById("saveUrl")
 
 
 getUrlButton.addEventListener("click", async () => {
-  let [tab] = await chrome.tabs.query({
-    active: true,
-    currentWindow: true
-  });
+    let [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true
+    });
 
-  chrome.scripting.executeScript({
-    target: {
-      tabId: tab.id
-    },
-    function: saveCurrentPage,
-  });
+    chrome.scripting.executeScript({
+        target: {
+            tabId: tab.id
+        },
+        function: saveCurrentPage,
+        args: [tab]
+    })
 });
 
-function saveCurrentPage() {
-  chrome.runtime.sendMessage({
-      action: "save-bookmark",
-      title: document.getElementsByTagName("title")[0].innerHTML,
-      url: window.location.href
-    },
-    (response) => {
-      console.log(response)
-    });
+function saveCurrentPage(tab) {
+    chrome.runtime.sendMessage({
+            action: "save-bookmark",
+            title: tab.title,
+            url: tab.url
+        },
+        (response) => {
+            console.log(response)
+        }
+    );
 }
-

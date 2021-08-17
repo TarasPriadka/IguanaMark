@@ -23,9 +23,9 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.bookmarks.getTree((tree) => {
         folderPresent = false
         tree[0].children[0].children.forEach(element => {
-            if (element.title == 'SmartMark bookmarks') {
-                folderPresent = true;
-                smartMarkNode = element;
+            if (element.title === 'SmartMark bookmarks') {
+                let folderPresent = true;
+                let smartMarkNode = element;
                 chrome.storage.sync.set({
                     smartMarkNode: smartMarkNode,
                 });
@@ -46,7 +46,6 @@ chrome.runtime.onInstalled.addListener(() => {
                     console.log(smartMarkNode);
                 },
             );
-
         }
     })
 });
@@ -55,7 +54,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log(request.action)
     if (request.action === "get-bookmarks") {
-        bookmarkTree = null
+        let bookmarkTree = null
         chrome.bookmarks.getSubTree(smartMarkNode.id, (tree) =>
             sendResponse({
                 ok: true,
@@ -63,14 +62,14 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             })
         );
     }
-    return true;
+    sendResponse(true);
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === "save-bookmark") {
         saveBookmark(request.title, request.url)
     }
-    return true;
+    sendResponse(true);
 });
 
 function saveBookmark(title, url) {
@@ -83,7 +82,6 @@ function saveBookmark(title, url) {
                 },
                 function (newBookmark) {
                     console.log("Saved bookmark: ", newBookmark);
-
                 },
             );
         }

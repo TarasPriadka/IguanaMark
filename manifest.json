@@ -4,16 +4,19 @@
     "version": "1.1",
     "manifest_version": 3,
     "background": {
-        "service_worker": "/background.js"
+        "service_worker": "background.js"
     },
     "permissions": [
-        "scripting", "storage", "activeTab", "bookmarks"
+        "scripting",
+        "storage",
+        "activeTab",
+        "bookmarks"
     ],
     "action": {
-        "default_popup": "/popup/popup.html"
+        "default_popup": "popup/popup.html"
     },
     "web_accessible_resources": [{
-        "resources": ["/data/*.json"],
+        "resources": ["data/*.json"],
         "matches": ["http://*/*", "https://*/*"]
     }]
 }
