@@ -11,21 +11,13 @@ try {
     console.log(e)
 }
 
-// *----*----*----* On-Install Script *----*----*----*
-chrome.runtime.onInstalled.addListener(() => {
-    const url = chrome.runtime.getURL('/data/urlClasses.json');
-    fetch(url)
-        .then((response) => response.json()) //assuming file contains json
-        .then((urlMap) => {
-            urlClassifier = new UrlCategorizer(urlMap);
-        });
-
+function updateSmartMarkNode() {
     chrome.bookmarks.getTree((tree) => {
         folderPresent = false
         tree[0].children[0].children.forEach(element => {
             if (element.title === 'SmartMark bookmarks') {
-                let folderPresent = true;
-                let smartMarkNode = element;
+                folderPresent = true;
+                smartMarkNode = element;
                 chrome.storage.sync.set({
                     smartMarkNode: smartMarkNode,
                 });
@@ -48,13 +40,25 @@ chrome.runtime.onInstalled.addListener(() => {
             );
         }
     })
+}
+
+// *----*----*----* On-Install Script *----*----*----*
+chrome.runtime.onInstalled.addListener(() => {
+    const url = chrome.runtime.getURL('/data/urlClasses.json');
+    fetch(url)
+        .then((response) => response.json()) //assuming file contains json
+        .then((urlMap) => {
+            urlClassifier = new UrlCategorizer(urlMap);
+        });
+
+    updateSmartMarkNode()
 });
 
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log(request.action)
     if (request.action === "get-bookmarks") {
-        let bookmarkTree = null
+        bookmarkTree = null
         chrome.bookmarks.getSubTree(smartMarkNode.id, (tree) =>
             sendResponse({
                 ok: true,
@@ -81,6 +85,7 @@ function saveBookmark(title, url) {
                     'url': url
                 },
                 function (newBookmark) {
+                    updateSmartMarkNode()
                     console.log("Saved bookmark: ", newBookmark);
                 },
             );
@@ -89,8 +94,24 @@ function saveBookmark(title, url) {
 }
 
 function createFolder(url) {
+
+    let category = String(urlClassifier.getUrlCategory(url)).valueOf()
+
+    if (smartMarkNode.children) {
+        for (let child_id in smartMarkNode.children) {
+            let child = smartMarkNode.children[child_id]
+            if (child.title === category) {
+                return {
+                    then: function(onFulfilled) {
+                        onFulfilled(child)
+                    }
+                };
+            }
+        }
+    }
+
     return chrome.bookmarks.create({
         'parentId': smartMarkNode.id,
-        'title': urlClassifier.getUrlCategory(url)
-    });
+        'title': category
+    })
 }

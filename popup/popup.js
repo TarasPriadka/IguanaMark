@@ -23,8 +23,5 @@ function saveCurrentPage(tab) {
             title: tab.title,
             url: tab.url
         },
-        (response) => {
-            console.log(response)
-        }
     );
 }
