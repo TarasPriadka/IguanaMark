@@ -1,0 +1,35 @@
+{
+  "name": "SmartMark",
+  "description": "Smart bookmark manager.",
+  "manifest_version": 3,
+  "version": "0.0.1",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png"
+    },
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+
+  },
+  "content_scripts": [{
+    "matches": [
+      "*://*/*"
+    ],
+    "js": [
+      "content.js"
+    ]
+  }],
+
+  "web_accessible_resources": [{
+    "resources": ["data/*.json"],
+    "matches": ["http://*/*", "https://*/*"]
+  }]
+}
