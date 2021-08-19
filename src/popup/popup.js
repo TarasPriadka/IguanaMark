@@ -1,7 +1,6 @@
 // // Initialize button with user's preferred color
 let getUrlButton = document.getElementById("saveUrl")
 
-
 getUrlButton.addEventListener("click", async () => {
     let [tab] = await chrome.tabs.query({
         active: true,
