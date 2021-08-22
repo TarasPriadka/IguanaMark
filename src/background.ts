@@ -2,8 +2,10 @@
 
 // *----*----*----* Globals *----*----*----*
 //global to store smartMarkNode
-let smartMarkNode:chrome.bookmarks.BookmarkTreeNode = null
-let urlClassifier: = null
+import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
+
+let smartMarkNode = null
+let urlClassifier = null
 
 try {
     importScripts("/libs/urlCategorizer.js")
@@ -12,7 +14,7 @@ try {
 }
 
 function updateSmartMarkNode() {
-    chrome.bookmarks.getTree((tree) => {
+    chrome.bookmarks.getTree((tree:BookmarkTreeNode[]) => {
         let folderPresent:boolean = false
         tree[0].children[0].children.forEach(element => {
             if (element.title === 'SmartMark bookmarks') {
@@ -57,6 +59,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log(request.action)
+    let bookmarkTree;
     if (request.action === "get-bookmarks") {
         bookmarkTree = null
         chrome.bookmarks.getSubTree(smartMarkNode.id, (tree) =>
@@ -77,6 +80,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 function saveBookmark(title:string, url:string) {
+    // @ts-ignore
     createFolder(url).then(
         (folder) => {
             chrome.bookmarks.create({
