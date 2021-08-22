@@ -1,4 +1,6 @@
 class UrlCategorizer {
+
+    urlMap
         
     constructor(urlMap:object) {
         this.urlMap = urlMap
