@@ -17,8 +17,11 @@
   },
   "background": {
     "service_worker": "background.js"
-
   },
+  "permissions": [
+    "bookmarks",
+    "storage"
+  ],
   "content_scripts": [{
     "matches": [
       "*://*/*"
@@ -27,7 +30,6 @@
       "content.js"
     ]
   }],
-
   "web_accessible_resources": [{
     "resources": ["data/*.json"],
     "matches": ["http://*/*", "https://*/*"]

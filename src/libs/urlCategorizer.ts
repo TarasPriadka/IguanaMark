@@ -1,12 +1,12 @@
-class UrlCategorizer {
+export class UrlCategorizer {
 
-    urlMap
-        
-    constructor(urlMap:object) {
+    urlMap: Record<string, string>
+
+    constructor(urlMap: Record<string, string>) {
         this.urlMap = urlMap
     }
 
-    getUrlCategory(url) {
+    getUrlCategory(url: string) {
         let u = new URL(url);
         return u.host in this.urlMap ? this.urlMap[u.host] : 'Other';
     }
