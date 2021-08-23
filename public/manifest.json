@@ -20,7 +20,8 @@
   },
   "permissions": [
     "bookmarks",
-    "storage"
+    "storage",
+    "scripting"
   ],
   "content_scripts": [{
     "matches": [
