@@ -4,18 +4,20 @@
 //global to store smartMarkNode
 import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
 
-let smartMarkNode = null
-let urlClassifier = null
+let smartMarkNode:BookmarkTreeNode
+let urlClassifier:UrlCategorizer
 
-try {
-    importScripts("/libs/urlCategorizer.js")
-} catch (e) {
-    console.log(e)
-}
+import {UrlCategorizer} from "./libs/urlCategorizer"
+// try {
+//     importScripts("urlCategorizer.js")
+// } catch (e) {
+//     console.log(e)
+// }
 
 function updateSmartMarkNode() {
     chrome.bookmarks.getTree((tree:BookmarkTreeNode[]) => {
         let folderPresent:boolean = false
+        // @ts-ignore
         tree[0].children[0].children.forEach(element => {
             if (element.title === 'SmartMark bookmarks') {
                 folderPresent = true;
@@ -82,7 +84,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 function saveBookmark(title:string, url:string) {
     // @ts-ignore
     createFolder(url).then(
-        (folder) => {
+        (folder: BookmarkTreeNode) => {
             chrome.bookmarks.create({
                     'parentId': folder.id,
                     'title': title,
@@ -97,7 +99,7 @@ function saveBookmark(title:string, url:string) {
     )
 }
 
-function createFolder(url) {
+function createFolder(url: string) {
 
     let category = String(urlClassifier.getUrlCategory(url)).valueOf()
 
@@ -106,7 +108,7 @@ function createFolder(url) {
             let child = smartMarkNode.children[child_id]
             if (child.title === category) {
                 return {
-                    then: function(onFulfilled) {
+                    then: function(onFulfilled: (a: BookmarkTreeNode) => any) {
                         onFulfilled(child)
                     }
                 };

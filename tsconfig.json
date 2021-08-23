@@ -2,9 +2,9 @@
     "compilerOptions": {
         "outDir": "./dist/",
         "sourceMap": true,
-        "strict": false,
-        "noImplicitReturns": false,
-        "noImplicitAny": false,
+        "strict": true,
+        "noImplicitReturns": true,
+        "noImplicitAny": true,
         "module": "es6",
         "moduleResolution": "node",
         "target": "es5",
