@@ -1,23 +1,13 @@
 body {
-    height: 90px;
-    width: 120px;
-    outline: none;
-    margin: 10px;
-    border: none;
-    border-radius: 2px;   
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.button {
-    margin: 5px;
-    background-color: #03a1fc;
-    color:whitesmoke;
-    border: none;
-    border-radius: 2px;   
-    text-align: center;
-}
-
-.button:hover {background-color: #3db8ff}
-.button:active {
-    background-color: #03a1fc;
-    box-shadow: 0 4px #666;
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
 }
