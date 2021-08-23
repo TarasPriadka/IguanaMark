@@ -20,7 +20,8 @@ function saveCurrentPage(tab) {
     chrome.runtime.sendMessage({
             action: "save-bookmark",
             title: tab.title,
-            url: tab.url
+            url: tab.url,
+            tab: tab
         },
     );
 }

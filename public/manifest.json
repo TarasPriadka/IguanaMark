@@ -19,9 +19,11 @@
     "service_worker": "background.js"
   },
   "permissions": [
+    "scripting",
     "bookmarks",
     "storage",
-    "scripting"
+    "scripting",
+    "tabs"
   ],
   "content_scripts": [{
     "matches": [
