@@ -7,7 +7,7 @@ import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
 let smartMarkNode: BookmarkTreeNode
 let urlClassifier: UrlCategorizer
 
-import {UrlCategorizer} from "./libs/urlCategorizer"
+import {UrlCategorizer} from "../libs/urlCategorizer"
 // try {
 //     importScripts("urlCategorizer.js")
 // } catch (e) {

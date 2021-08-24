@@ -1,7 +1,6 @@
 // src/App.tsx
 
 import React, {useState} from "react";
-import logo from "../logo.svg";
 import "./App.css";
 
 async function saveCurrentPage() {
