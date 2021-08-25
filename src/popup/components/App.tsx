@@ -1,23 +1,15 @@
 // src/App.tsx
 
 import React, {useState} from "react";
+import saveCurrentPage from "../../libs/ui";
 import "./App.css";
 
-async function saveCurrentPage() {
-
+async function getCurrentTab() {
     let [tab] = await chrome.tabs.query({
         active: true,
         currentWindow: true
     });
-
-    chrome.runtime.sendMessage({
-            action: "save-bookmark",
-            title: tab.title,
-            url: tab.url,
-            tab: tab
-        },
-    );
-
+    return tab;
 }
 
 const App = () => {
@@ -27,9 +19,11 @@ const App = () => {
         <div className="App">
             <header className="App-header">
                 <button className="button" id="saveUrl" onClick={() => {
-                    saveCurrentPage()
-                    // console.log("SS.");
-                    // setText("clicked.")
+                    getCurrentTab().then((tab) => {
+                        if (tab.title != null && tab.url != null) {
+                            saveCurrentPage(tab.title, tab.url, tab);
+                        }
+                    });
                 }}>
                     {text}
                 </button>
