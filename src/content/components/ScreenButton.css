@@ -1,6 +1,6 @@
+@import "../../../public/main.css";
+
 .back-to-top {
-    background-color: #FFFFFF;
-    color: #000000;
     opacity: 100;
     transition: opacity .6s ease-in-out;
     z-index: 999;
@@ -10,16 +10,16 @@
     width: 50px;
     height: 50px;
     box-sizing: border-box;
-    border-radius: 0%;
+    border-radius: 50%;
 }
 
 div.back-to-top {
     font-weight: 1000;
-    letter-spacing: 2px;
-    font-size: 14px;
-    text-transform: uppercase;
+    /* letter-spacing: 2px; */
+    font-size: 150px;
+    /* text-transform: uppercase; */
     text-align: center;
-    line-height: 1.6;
+    /* line-height: 1.6; */
     padding-left: 2px;
     padding-top: 14px;
 }
@@ -30,4 +30,10 @@ div.back-to-top {
 
 .back-to-top.show {
     opacity: 100;
+}
+
+.circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
 }

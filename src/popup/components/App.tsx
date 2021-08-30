@@ -18,7 +18,7 @@ const App = () => {
     return (
         <div className="App">
             <header className="App-header">
-                <button className="button" id="saveUrl" onClick={() => {
+                <button className="linkButton" id="saveUrl" onClick={() => {
                     getCurrentTab().then((tab) => {
                         if (tab.title != null && tab.url != null) {
                             saveCurrentPage(tab.title, tab.url, tab);
