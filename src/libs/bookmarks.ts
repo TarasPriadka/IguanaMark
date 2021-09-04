@@ -1,10 +1,6 @@
 import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
 import BookmarkChangeInfo = chrome.bookmarks.BookmarkChangeInfo;
 
-enum FindType {
-    STRING_SEARCH
-}
-
 const BOOKMARK_FOLDER_TITLE = 'SmartMark'
 
 export class Bookmarks {
@@ -28,49 +24,38 @@ export class Bookmarks {
      *     }
      * }
      */
-    private bookmarkMap: Record<string, object> = {}
+    private bookmarkMap: Record<string, Object> = {}
+    private folderTree: Object | undefined = {}
 
     private rootNode!: BookmarkTreeNode
 
-    private findType: FindType
-
-    constructor(findType = FindType.STRING_SEARCH) {
-        this.findType = findType
-
-        this.updateSmartMarkNode()
-
+    constructor() {
+        this.syncWithChrome()
     }
 
-    /**********************/
     /* Bookmark-level API */
-    /**********************/
 
     // Save new or update existing bookmark title and location
     async saveBookmark(url: string, title: string, folderName: string[]) {
         let folder = await this.createFolder(folderName);
 
-        if (url in this.bookmarkMap) {
+        if (url in this.bookmarkMap) { // bookmark exists, update title and folder
             // @ts-ignore complains about the ['id']
             const renamedBookmark = await chrome.bookmarks.update(this.bookmarkMap[url]['id'],
-                {
-                    'title': title,
-                },
+                {'title': title},
             );
-            // @ts-ignore
             const finalBookmark = await chrome.bookmarks.move(renamedBookmark.id,
-                {
-                    'parentId': folder.id,
-                },
+                {'parentId': folder.id},
             )
             this.syncWithChrome()
             console.log("Saved bookmark: ", finalBookmark);
-        } else {
+        } else { // new bookmark : create
             chrome.bookmarks.create({
                     'parentId': folder.id,
                     'title': title,
                     'url': url
                 },
-                (newBookmark) => {
+                (newBookmark: BookmarkTreeNode) => {
                     this.syncWithChrome()
                     console.log("Saved bookmark: ", newBookmark);
                 },
@@ -94,12 +79,19 @@ export class Bookmarks {
     }
 
     // Move bookmark to new folder
-    moveBookmark(url: string, folder: string) {
-        // TODO
-        // chrome.bookmarks.move(this.bookmarkMap[url].id, )
+    async moveBookmark(url: string, folderName: string[]) {
+        let folder = await this.createFolder(folderName);
+        // @ts-ignore
+        chrome.bookmarks.move(this.bookmarkMap[url]['id'],
+            {'parentId': folder.id},
+            (newBookmark) => {
+                this.syncWithChrome()
+                console.log("Saved bookmark: ", newBookmark);
+            },
+        );
     }
 
-    // TODO: Decide whether we need this is a good way to do this
+    // TODO: Decide how to track access times for recently accessed bookmarks
     // update the lastAccess date on the bookmark
     // accessBookmark(url: string, date: number = -1) {
     // }
@@ -109,23 +101,25 @@ export class Bookmarks {
         return url in this.bookmarkMap
     }
 
-    // Get bookmark by id (url) or check if it exists (is null)
+    // Get bookmark by url. undefined if url not bookmarked
     getBookmark(url: string) {
         return this.bookmarkMap[url]
     }
 
     // Delete bookmark by url
     deleteBookmark(url: string) {
+        if (this.bookmarkExists(url))
+            delete this.bookmarkMap[url]
     }
 
     // Find best matching bookmarks by query string
-    findBookmarks(query: string, method: FindType = FindType.STRING_SEARCH) {
+    async findBookmarks(query: string) {
+        return (await chrome.bookmarks.search(query)).filter(a => {
+            !a.url
+        })
     }
 
-    /********************/
     /* Folder-level API */
-
-    /********************/
 
     private createFolderShallow(root: BookmarkTreeNode, folder: string): Promise<BookmarkTreeNode> {
         // if (!root.children) throw new SomeException()
@@ -142,85 +136,124 @@ export class Bookmarks {
     }
 
     // Ensure the folder exists
-    async createFolder(folder: string[]) {
+    async createFolder(folderName: string[]) {
 
         let root = this.rootNode
         console.log("root", root)
-        for (const folderLevel of folder) {
+        for (const folderLevel of folderName) {
             root = await this.createFolderShallow(root, folderLevel)
         }
         return root
     }
 
-    // Check if bookmark exists
-    folderExists(folder: string[]): boolean {
-        return false;
-    }
-
     // Get all bookmarks in folder
-    getBookmarks(folder: string[]) {
+    getBookmarks(folderName: string[]): string[] {
+        let folder: Object | undefined = this.folderTree
+        for (const folderLevel of folderName) {
+            if (folder == undefined)
+                return []
+            // @ts-ignore
+            folder = folder[folderLevel]
+        }
+        if (folder == undefined)
+            return []
+        return Object.entries(folder)
+            .filter(entry => entry[1] == undefined)
+            .map(entry => entry[0])
     }
 
     // Get all subfolders in folder
-    getSubfolders(folder: string[]) {
+    getSubfolders(folderName: string[]) {
+        let folder: Object | undefined = this.folderTree
+        for (const folderLevel of folderName) {
+            if (folder == undefined)
+                return []
+            // @ts-ignore
+            folder = folder[folderLevel]
+        }
+        if (folder == undefined)
+            return []
+        return Object.entries(folder)
+            .filter(entry => entry[1] != undefined)
+            .map(entry => entry[0])
     }
 
     // Find best matching folders by query string
-    findFolders(query: string, method: FindType = FindType.STRING_SEARCH) {
+    async findFolders(query: string) {
+        return (await chrome.bookmarks.search(query)).filter(a => {
+            !a.url
+        })
     }
 
     // Delete a whole folder, or a bookmark by name
     deleteFolder(folder: string[]) {
+        // TODO implement
     }
 
-    /***********/
     /* Helpers */
 
-    /***********/
+    async updateSmartMarkNode() {
+        let tree = await chrome.bookmarks.getTree()
+        let folderPresent: boolean = false
 
-    updateSmartMarkNode() {
-        chrome.bookmarks.getTree(tree => {
-            let folderPresent: boolean = false
-
-            tree[0].children![0].children!.forEach(element => {
-                if (element.title === BOOKMARK_FOLDER_TITLE) {
-                    folderPresent = true;
-                    this.rootNode = element;
-                }
-            });
-            if (!folderPresent) {
-                console.log("Didn't find bookmark folder. Creating one now...");
-                chrome.bookmarks.create({
-                        'parentId': "1",
-                        'title': BOOKMARK_FOLDER_TITLE
-                    },
-                    newFolder => this.rootNode = newFolder
-                )
+        tree[0].children![0].children!.forEach(element => {
+            if (element.title === BOOKMARK_FOLDER_TITLE) {
+                folderPresent = true;
+                this.rootNode = element;
             }
-        })
+        });
+        if (!folderPresent) {
+            console.log("Didn't find bookmark folder. Creating one now...");
+            this.rootNode = await chrome.bookmarks.create({
+                'parentId': "1",
+                'title': BOOKMARK_FOLDER_TITLE
+            })
+        }
     }
 
-    visitSubtree(tree: BookmarkTreeNode, leafCallback: (a: BookmarkTreeNode) => any) {
-        if (tree.children)
+    visitSubtree(
+        tree: BookmarkTreeNode,
+        leafCallback: (a: BookmarkTreeNode) => any
+    ) {
+        if (tree.children) {
             tree.children.forEach(subtree => this.visitSubtree(subtree, leafCallback))
-        else
+        } else {
             leafCallback(tree)
+        }
     }
 
-    updateHashMap() {
+    updateURLMap() {
         this.bookmarkMap = {}
-        this.visitSubtree(this.rootNode, (leaf: BookmarkTreeNode) => {
+        this.visitSubtree(this.rootNode, leaf => {
             this.bookmarkMap[leaf.url!] = leaf // TODO change to custom object
         })
     }
 
+    updateFolderTreeHelper(root: BookmarkTreeNode): Object | undefined {
+        let folders: Record<string, Object | undefined> = {}
+        if (root.children) {
+            root.children.forEach(subtree => {
+                folders[subtree.title] = this.updateFolderTreeHelper(subtree)
+            })
+            return folders
+        } else {
+            return undefined
+        }
+    }
+
+
+    updateFolderTree() {
+        this.folderTree = this.updateFolderTreeHelper(this.rootNode)
+    }
+
     /**
-     * Syncs local bookmark data structres with the chrome bookmarks api
+     * Syncs local bookmark data structures with the chrome bookmarks api
      * @private
      */
-    private syncWithChrome() {
-        this.updateSmartMarkNode()
-        this.updateHashMap()
+    private async syncWithChrome() {
+        await this.updateSmartMarkNode()
+        this.updateURLMap()
+        this.updateFolderTree()
     }
 
 }
