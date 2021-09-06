@@ -7,16 +7,16 @@ import {UrlCategorizer} from "../libs/urlCategorizer"
 import {Bookmarks} from "../libs/bookmarks"
 
 let bookmarks = new Bookmarks()
+const url = chrome.runtime.getURL('/data/urlClasses.json');
+fetch(url)
+    .then((response) => response.json())
+    .then((urlMap) => {
+        urlClassifier = new UrlCategorizer(urlMap);
+    });
 
 // *----*----*----* On-Install Script *----*----*----*
 chrome.runtime.onInstalled.addListener(() => {
-    const url = chrome.runtime.getURL('/data/urlClasses.json');
-    fetch(url)
-        .then((response) => response.json()) //assuming file contains json
-        .then((urlMap) => {
-            urlClassifier = new UrlCategorizer(urlMap);
-            chrome.storage.sync.set({ urlClassifier });
-        });
+    // Do nothing
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
