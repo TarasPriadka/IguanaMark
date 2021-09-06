@@ -1,10 +1,6 @@
 // background.js
 
 // *----*----*----* Globals *----*----*----*
-//global to store smartMarkNode
-import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
-
-// let smartMarkNode: BookmarkTreeNode
 let urlClassifier: UrlCategorizer
 
 import {UrlCategorizer} from "../libs/urlCategorizer"
@@ -19,6 +15,7 @@ chrome.runtime.onInstalled.addListener(() => {
         .then((response) => response.json()) //assuming file contains json
         .then((urlMap) => {
             urlClassifier = new UrlCategorizer(urlMap);
+            chrome.storage.sync.set({ urlClassifier });
         });
 });
 
