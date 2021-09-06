@@ -22,7 +22,6 @@
     "scripting",
     "bookmarks",
     "storage",
-    "scripting",
     "tabs"
   ],
   "content_scripts": [{

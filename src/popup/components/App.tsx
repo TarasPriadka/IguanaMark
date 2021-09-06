@@ -1,7 +1,7 @@
 // src/App.tsx
 
 import React, {useState} from "react";
-import {saveCurrentPage} from "../../libs/ui";
+import {saveCurrentPage, removeCurrentPage, checkBookmark} from "../../libs/ui";
 import "./App.css";
 
 async function getCurrentTab() {
@@ -12,8 +12,13 @@ async function getCurrentTab() {
     return tab;
 }
 
+let initialized = false;
+
 const App = () => {
-    const [text, setText] = useState("Save Current Page")
+    const [bookmarkExists, setBookmarkExists] = useState(false)
+    if (!initialized)
+        getCurrentTab().then(tab => checkBookmark(tab.url!, setBookmarkExists)).then(() => initialized = true)
+    console.log('In global popup scope')
 
     return (
         <div className="App">
@@ -21,11 +26,15 @@ const App = () => {
                 <button className="linkButton" id="saveUrl" onClick={() => {
                     getCurrentTab().then((tab) => {
                         if (tab.title != null && tab.url != null) {
-                            saveCurrentPage(tab.title, tab.url, tab);
+                            if (bookmarkExists)
+                                removeCurrentPage(tab.url)
+                            else
+                                saveCurrentPage(tab.title, tab.url, tab)
+                            setBookmarkExists(!bookmarkExists)
                         }
                     });
                 }}>
-                    {text}
+                    {bookmarkExists ? "Remove Current Page" : "Save Current Page"}
                 </button>
             </header>
         </div>

@@ -6,10 +6,30 @@ import Draggable from 'react-draggable'; // The default
 
 import "./ScreenButton.css";
 
+let initialized = false;
 
 const ScreenButton = () => {
     const [bookmarkExists, setBookmarkExists] = useState(false)
-    checkBookmark(window.location.href, setBookmarkExists)
+    if (!initialized)
+        checkBookmark(window.location.href, (state) => {
+            setBookmarkExists(state)
+            initialized = true
+        })
+    console.log('In global screen button scope')
+
+    chrome.runtime.onMessage.addListener(function (request) {
+        console.log(request)
+        try {
+            switch (request.action) {
+                case "broadcast-update":
+                    if (request.url == window.location.href)
+                        setBookmarkExists(request.bookmarkExists)
+                    break
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    });
 
     return (
         <Draggable>
@@ -20,7 +40,7 @@ const ScreenButton = () => {
                             removeCurrentPage(window.location.href,);
                         else
                             saveCurrentPage(document.title, window.location.href, null);
-                        setBookmarkExists(!bookmarkExists)
+                        // setBookmarkExists(!bookmarkExists)
                     }}>
                         *
                     </button>
