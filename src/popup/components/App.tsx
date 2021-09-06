@@ -1,7 +1,7 @@
 // src/App.tsx
 
 import React, {useState} from "react";
-import saveCurrentPage from "../../libs/ui";
+import {saveCurrentPage} from "../../libs/ui";
 import "./App.css";
 
 async function getCurrentTab() {

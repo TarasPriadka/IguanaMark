@@ -26,9 +26,15 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             // case "get-bookmarks":
             //     bookmarks.getBookmarks()
             //     break
+            case "check-bookmark":
+                sendResponse(bookmarks.bookmarkExists(request.url))
+                break
             case "save-bookmark":
                 let category = String(urlClassifier.getUrlCategory(request.url)).valueOf()
                 bookmarks.saveBookmark(request.url, request.title, [category]).then(sendResponse)
+                break
+            case "remove-bookmark":
+                sendResponse(bookmarks.removeBookmark(request.url))
                 break
         }
     } catch (e) {

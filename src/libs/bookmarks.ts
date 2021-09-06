@@ -105,8 +105,8 @@ export class Bookmarks {
         return this.bookmarkMap[url][0]
     }
 
-    // Delete bookmark by url
-    deleteBookmark(url: string) {
+    // Remove bookmark by url
+    removeBookmark(url: string) {
         if (this.bookmarkExists(url)) {
             this.bookmarkMap[url].forEach(bookmark => {
                 // @ts-ignore
