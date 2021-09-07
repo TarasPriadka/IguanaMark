@@ -1,6 +1,8 @@
 // background.js
 
 // *----*----*----* Globals *----*----*----*
+import {checkBookmark} from "../libs/ui";
+
 let urlClassifier: UrlCategorizer
 
 import {UrlCategorizer} from "../libs/urlCategorizer"
@@ -8,12 +10,6 @@ import {Bookmarks} from "../libs/bookmarks"
 
 let bookmarks = new Bookmarks()
 const dataURL = chrome.runtime.getURL('/data/urlClasses.json');
-fetch(dataURL)
-    .then((response) => response.json())
-    .then((urlMap) => {
-        urlClassifier = new UrlCategorizer(urlMap);
-    });
-
 
 /**
  * Function to notify content page of bookmark creation/deletion state
@@ -28,7 +24,7 @@ function notifyContentPage(url: string, bookmarkExists: boolean) {
         active: true,
         currentWindow: true
     }).then(tabs => {
-        if (tabs.length > 0 && tabs[0].id)
+        if (tabs.length > 0 && tabs[0].id && tabs[0].url == url)
             chrome.tabs.sendMessage(
                 tabs[0].id,
                 {
@@ -38,6 +34,29 @@ function notifyContentPage(url: string, bookmarkExists: boolean) {
                 });
     });
 }
+
+function notifyContentPageYourself() {
+    chrome.tabs.query({
+        active: true,
+        currentWindow: true
+    }).then(tabs => {
+        if (tabs.length > 0 && tabs[0].id && tabs[0].url)
+            chrome.tabs.sendMessage(
+                tabs[0].id!,
+                {
+                    action: "broadcast-update",
+                    url: tabs[0].url,
+                    bookmarkExists: bookmarks.bookmarkExists(tabs[0].url)
+                });
+    });
+}
+
+
+fetch(dataURL)
+    .then((response) => response.json())
+    .then((urlMap) => {
+        urlClassifier = new UrlCategorizer(urlMap);
+    });
 
 /**
  * Listeners for created and removed bookmarks that notify the content pages
@@ -49,6 +68,10 @@ chrome.bookmarks.onCreated.addListener((id, bookmark) => {
 })
 chrome.bookmarks.onRemoved.addListener((id, removeInfo) => {
     notifyContentPage(removeInfo.node.url!, false)
+})
+// In case bookmark existence state changes while content is not focused
+chrome.tabs.onActivated.addListener((activeInfo) => {
+    notifyContentPageYourself()
 })
 
 /**
