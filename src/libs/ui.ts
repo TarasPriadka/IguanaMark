@@ -1,5 +1,4 @@
 export async function saveCurrentPage(title: string, url: string, tab: chrome.tabs.Tab | object | null) {
-
     chrome.runtime.sendMessage({
             action: "save-bookmark",
             title: title,
@@ -7,17 +6,14 @@ export async function saveCurrentPage(title: string, url: string, tab: chrome.ta
             tab: tab
         },
     );
-
 }
 
 export async function removeCurrentPage(url: string) {
-
     chrome.runtime.sendMessage({
             action: "remove-bookmark",
             url: url,
         },
     );
-
 }
 
 export function checkBookmark(url: string, callback: (a: boolean) => any) {

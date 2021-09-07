@@ -16,9 +16,10 @@ let initialized = false;
 
 const App = () => {
     const [bookmarkExists, setBookmarkExists] = useState(false)
-    if (!initialized)
-        getCurrentTab().then(tab => checkBookmark(tab.url!, setBookmarkExists)).then(() => initialized = true)
-    console.log('In global popup scope')
+    if (!initialized) {
+        initialized = true
+        getCurrentTab().then(tab => checkBookmark(tab.url!, setBookmarkExists))
+    }
 
     return (
         <div className="App">

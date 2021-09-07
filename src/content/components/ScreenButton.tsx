@@ -10,38 +10,35 @@ let initialized = false;
 
 const ScreenButton = () => {
     const [bookmarkExists, setBookmarkExists] = useState(false)
-    if (!initialized)
-        checkBookmark(window.location.href, (state) => {
-            setBookmarkExists(state)
-            initialized = true
-        })
-    console.log('In global screen button scope')
-
-    chrome.runtime.onMessage.addListener(function (request) {
-        console.log(request)
-        try {
-            switch (request.action) {
-                case "broadcast-update":
+    if (!initialized) {
+        initialized = true
+        // initialize the state this way because checkBookmark is async
+        checkBookmark(window.location.href, setBookmarkExists)
+        // add a single listener for background's bookmark update broadcasts
+        chrome.runtime.onMessage.addListener(function (request) {
+            console.log(request)
+            try {
+                if (request.action == "broadcast-update") {
                     if (request.url == window.location.href)
                         setBookmarkExists(request.bookmarkExists)
-                    break
+                }
+            } catch (e) {
+                console.error(e)
             }
-        } catch (e) {
-            console.error(e)
-        }
-    });
+        });
+    }
 
     return (
         <Draggable>
             <div className="back-to-top">
                 <header className="AppHeader">
-                    <button className={`linkButton circle ${bookmarkExists ? "activated" : ""}`} id="saveUrl" onClick={() => {
-                        if (bookmarkExists)
-                            removeCurrentPage(window.location.href,);
-                        else
-                            saveCurrentPage(document.title, window.location.href, null);
-                        // setBookmarkExists(!bookmarkExists)
-                    }}>
+                    <button className={`linkButton circle ${bookmarkExists ? "activated" : ""}`} id="saveUrl"
+                            onClick={() => {
+                                if (bookmarkExists)
+                                    removeCurrentPage(window.location.href,);
+                                else
+                                    saveCurrentPage(document.title, window.location.href, null);
+                            }}>
                         *
                     </button>
                 </header>

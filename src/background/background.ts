@@ -15,6 +15,45 @@ fetch(dataURL)
     });
 
 
+/**
+ * Function to notify content page of bookmark creation/deletion state
+ * This is necessary for having the content page update when the user manages bookmarks via the popup or the bookmarks
+ * bar in the browser.
+ *
+ * @param url bookmark url
+ * @param bookmarkExists whether to notify of bookmark creation (true) or deletion (false)
+ */
+function notifyContentPage(url: string, bookmarkExists: boolean) {
+    chrome.tabs.query({
+        active: true,
+        currentWindow: true
+    }).then(tabs => {
+        if (tabs.length > 0 && tabs[0].id)
+            chrome.tabs.sendMessage(
+                tabs[0].id,
+                {
+                    action: "broadcast-update",
+                    url: url,
+                    bookmarkExists: bookmarkExists
+                });
+    });
+}
+
+/**
+ * Listeners for created and removed bookmarks that notify the content pages
+ * TODO: add onCreated and onRemoved listeners in bookmarks.ts that would fire when a bookmark
+ *  is moved outside of main folder as well
+ */
+chrome.bookmarks.onCreated.addListener((id, bookmark) => {
+    notifyContentPage(bookmark.url!, true)
+})
+chrome.bookmarks.onRemoved.addListener((id, removeInfo) => {
+    notifyContentPage(removeInfo.node.url!, false)
+})
+
+/**
+ * Listeners for background API actions
+ */
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log(request.action)
     try {
@@ -25,57 +64,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             case "save-bookmark":
                 let category = String(urlClassifier.getUrlCategory(request.url)).valueOf()
                 bookmarks.saveBookmark(request.url, request.title, [category]).then(sendResponse)
-                if (sender.tab && sender.tab.id) {
-                    chrome.tabs.sendMessage(
-                        sender.tab.id,
-                        {
-                            action: "broadcast-update",
-                            url: request.url,
-                            bookmarkExists: true
-                        });
-                } else {
-                    chrome.tabs.query({
-                        active: true,
-                        currentWindow: true
-                    }).then(tabs => {
-                        if (tabs.length > 0 && tabs[0].id) {
-                            chrome.tabs.sendMessage(
-                                tabs[0].id,
-                                {
-                                    action: "broadcast-update",
-                                    url: request.url,
-                                    bookmarkExists: true
-                                });
-                        }
-                    });
-                }
                 break
             case "remove-bookmark":
                 sendResponse(bookmarks.removeBookmark(request.url))
-                if (sender.tab && sender.tab.id) {
-                    chrome.tabs.sendMessage(
-                        sender.tab.id,
-                        {
-                            action: "broadcast-update",
-                            url: request.url,
-                            bookmarkExists: false
-                        });
-                } else {
-                    chrome.tabs.query({
-                        active: true,
-                        currentWindow: true
-                    }).then(tabs => {
-                        if (tabs.length > 0 && tabs[0].id) {
-                            chrome.tabs.sendMessage(
-                                tabs[0].id,
-                                {
-                                    action: "broadcast-update",
-                                    url: request.url,
-                                    bookmarkExists: false
-                                });
-                        }
-                    });
-                }
                 break
         }
     } catch (e) {
