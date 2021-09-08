@@ -16,9 +16,16 @@ let initialized = false;
 
 const App = () => {
     const [bookmarkExists, setBookmarkExists] = useState(false)
+    const [contentVisible, setContentVisible] = useState(true)
+
     if (!initialized) {
         initialized = true
         getCurrentTab().then(tab => checkBookmark(tab.url!, setBookmarkExists))
+
+        chrome.storage.sync.get(storage => {
+            if ('contentVisible' in storage)
+                setContentVisible(Boolean(storage['contentVisible']))
+        })
     }
 
     return (
@@ -35,8 +42,17 @@ const App = () => {
                         }
                     });
                 }}>
-                    {bookmarkExists ? "Remove Current Page" : "Save Current Page"}
+                    {bookmarkExists ? "Unmark Current Page" : "Mark Current Page"}
                 </button>
+                <br/>
+                <span className={"checkboxWrapper"} onClick={() => {
+                    chrome.storage.sync.set({contentVisible: !contentVisible})
+                    setContentVisible(!contentVisible)
+                }}>
+                    <input type="checkbox" checked={contentVisible}/>
+                    <span></span>
+                    Quick Mark Button
+                </span>
             </header>
         </div>
     );

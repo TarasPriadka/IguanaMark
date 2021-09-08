@@ -39,7 +39,7 @@ const ScreenButton = () => {
                                 else
                                     saveCurrentPage(document.title, window.location.href, null);
                             }}>
-                        *
+                        {bookmarkExists ? '★' : '☆'}
                     </button>
                 </header>
             </div>
