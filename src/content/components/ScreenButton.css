@@ -29,3 +29,7 @@
     height: 50px;
     border-radius: 50%;
 }
+
+.activated {
+    background-color: red;
+}
