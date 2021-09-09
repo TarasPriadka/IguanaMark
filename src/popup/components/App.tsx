@@ -22,10 +22,11 @@ const App = () => {
         initialized = true
         getCurrentTab().then(tab => checkBookmark(tab.url!, setBookmarkExists))
 
-        chrome.storage.sync.get(storage => {
+        chrome.storage.sync.get(['contentVisible'], storage => {
             if ('contentVisible' in storage)
-                setContentVisible(Boolean(storage['contentVisible']))
+                setContentVisible(storage['contentVisible'])
         })
+
     }
 
     return (
@@ -47,6 +48,16 @@ const App = () => {
                 <br/>
                 <span className={"checkboxWrapper"} onClick={() => {
                     chrome.storage.sync.set({contentVisible: !contentVisible})
+
+                    // send out message for content to update dynamically
+                    getCurrentTab().then(tab => {
+                        if (tab.id)
+                            chrome.tabs.sendMessage(tab.id, {
+                                action: 'contentVisible',
+                                contentVisible: !contentVisible
+                            })
+                    })
+
                     setContentVisible(!contentVisible)
                 }}>
                     <input type="checkbox" checked={contentVisible}/>

@@ -1,8 +1,4 @@
-// background.js
-
 // *----*----*----* Globals *----*----*----*
-import {checkBookmark} from "../libs/ui";
-
 let urlClassifier: UrlCategorizer
 
 import {UrlCategorizer} from "../libs/urlCategorizer"
@@ -10,6 +6,14 @@ import {Bookmarks} from "../libs/bookmarks"
 
 let bookmarks = new Bookmarks()
 const dataURL = chrome.runtime.getURL('/data/urlClasses.json');
+
+async function getCurrentTab() {
+    let [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true
+    })
+    return tab
+}
 
 /**
  * Function to notify content page of bookmark creation/deletion state
@@ -19,14 +23,11 @@ const dataURL = chrome.runtime.getURL('/data/urlClasses.json');
  * @param url bookmark url
  * @param bookmarkExists whether to notify of bookmark creation (true) or deletion (false)
  */
-function notifyContentPage(url: string, bookmarkExists: boolean) {
-    chrome.tabs.query({
-        active: true,
-        currentWindow: true
-    }).then(tabs => {
-        if (tabs.length > 0 && tabs[0].id && tabs[0].url == url)
+function notifyBookmarkUpdate(url: string, bookmarkExists: boolean) {
+    getCurrentTab().then(tab => {
+        if (tab.id)
             chrome.tabs.sendMessage(
-                tabs[0].id,
+                tab.id,
                 {
                     action: "broadcast-update",
                     url: url,
@@ -35,20 +36,27 @@ function notifyContentPage(url: string, bookmarkExists: boolean) {
     });
 }
 
-function notifyContentPageYourself() {
-    chrome.tabs.query({
-        active: true,
-        currentWindow: true
-    }).then(tabs => {
-        if (tabs.length > 0 && tabs[0].id && tabs[0].url)
+function notifyBookmarkUpdateAuto() {
+    getCurrentTab().then(tab => {
+        if (tab.id && tab.url)
             chrome.tabs.sendMessage(
-                tabs[0].id!,
+                tab.id!,
                 {
                     action: "broadcast-update",
-                    url: tabs[0].url,
-                    bookmarkExists: bookmarks.bookmarkExists(tabs[0].url)
+                    url: tab.url,
+                    bookmarkExists: bookmarks.bookmarkExists(tab.url)
                 });
     });
+}
+
+function notifyContentVisible(tabId: number) {
+    chrome.storage.sync.get(['contentVisible'], (storage) => {
+        chrome.tabs.sendMessage(tabId, {
+            action: 'contentVisible',
+            contentVisible: storage['contentVisible']
+        })
+
+    })
 }
 
 
@@ -64,14 +72,18 @@ fetch(dataURL)
  *  is moved outside of main folder as well
  */
 chrome.bookmarks.onCreated.addListener((id, bookmark) => {
-    notifyContentPage(bookmark.url!, true)
+    notifyBookmarkUpdate(bookmark.url!, true)
 })
 chrome.bookmarks.onRemoved.addListener((id, removeInfo) => {
-    notifyContentPage(removeInfo.node.url!, false)
+    notifyBookmarkUpdate(removeInfo.node.url!, false)
 })
-// In case bookmark existence state changes while content is not focused
+
+/**
+ * Propagate updates during tab switches
+ */
 chrome.tabs.onActivated.addListener((activeInfo) => {
-    notifyContentPageYourself()
+    notifyBookmarkUpdateAuto()
+    notifyContentVisible(activeInfo.tabId)
 })
 
 /**
@@ -89,7 +101,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 bookmarks.saveBookmark(request.url, request.title, [category]).then(sendResponse)
                 break
             case "remove-bookmark":
-                sendResponse(bookmarks.removeBookmark(request.url))
+                bookmarks.removeBookmark(request.url)
                 break
         }
     } catch (e) {

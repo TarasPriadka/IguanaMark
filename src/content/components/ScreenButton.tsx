@@ -10,17 +10,26 @@ let initialized = false;
 
 const ScreenButton = () => {
     const [bookmarkExists, setBookmarkExists] = useState(false)
+    const [contentVisible, setContentVisible] = useState(false)
     if (!initialized) {
         initialized = true
         // initialize the state this way because checkBookmark is async
         checkBookmark(window.location.href, setBookmarkExists)
-        // add a single listener for background's bookmark update broadcasts
+
+        chrome.storage.sync.get(['contentVisible'], res => setContentVisible(res['contentVisible']))
+
+        // add listeners for outside events that change content state
         chrome.runtime.onMessage.addListener(function (request) {
             console.log(request)
             try {
-                if (request.action == "broadcast-update") {
-                    if (request.url == window.location.href)
-                        setBookmarkExists(request.bookmarkExists)
+                switch (request.action) {
+                    case 'broadcast-update':
+                        if (request.url == window.location.href)
+                            setBookmarkExists(request.bookmarkExists)
+                        break
+                    case 'contentVisible':
+                        setContentVisible(request.contentVisible)
+                        break
                 }
             } catch (e) {
                 console.error(e)
@@ -28,16 +37,22 @@ const ScreenButton = () => {
         });
     }
 
+    let isDragging = false;
+
     return (
-        <Draggable>
-            <div className="back-to-top">
+        <Draggable onDrag={() => {
+            isDragging = true;
+        }}>
+            <div className="back-to-top" hidden={!contentVisible}>
                 <header className="AppHeader">
                     <button className={`linkButton circle ${bookmarkExists ? "activated" : ""}`} id="saveUrl"
                             onClick={() => {
-                                if (bookmarkExists)
-                                    removeCurrentPage(window.location.href,);
-                                else
-                                    saveCurrentPage(document.title, window.location.href, null);
+                                if (!isDragging)
+                                    if (bookmarkExists)
+                                        removeCurrentPage(window.location.href,);
+                                    else
+                                        saveCurrentPage(document.title, window.location.href, null);
+                                isDragging = false;
                             }}>
                         {bookmarkExists ? '★' : '☆'}
                     </button>
