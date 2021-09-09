@@ -1,15 +1,22 @@
+function sendMessage(message: any, callback: any = undefined) {
+    try {
+        return chrome.runtime.sendMessage(message, callback);
+    } catch (e) {
+        console.log(e)
+    }
+}
+
 export async function saveCurrentPage(title: string, url: string, tab: chrome.tabs.Tab | object | null) {
-    chrome.runtime.sendMessage({
-            action: "save-bookmark",
-            title: title,
-            url: url,
-            tab: tab
-        },
-    );
+    return sendMessage({
+        action: "save-bookmark",
+        title: title,
+        url: url,
+        tab: tab
+    })
 }
 
 export async function removeCurrentPage(url: string) {
-    chrome.runtime.sendMessage({
+    return sendMessage({
             action: "remove-bookmark",
             url: url,
         },
@@ -17,7 +24,7 @@ export async function removeCurrentPage(url: string) {
 }
 
 export function checkBookmark(url: string, callback: (a: boolean) => any) {
-    chrome.runtime.sendMessage({
+    return sendMessage({
             action: "check-bookmark",
             url: url,
         },
