@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "TS_NODE_PROJECT=\"tsconfig.testing.json\" mocha -r ts-node/register src/**/test/*.ts",
+    "test": "TS_NODE_PROJECT=\"tsconfig.testing.json\" mocha -r ts-node/register test/**/*.ts",
     "build": "webpack",
     "start": "webpack --watch"
   },

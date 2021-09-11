@@ -3,9 +3,7 @@ export class UrlCategorizer {
     urlMap: Record<string, string> | undefined
 
     constructor(urlMap?: Record<string, string>) {
-        if (urlMap != undefined) {
-            this.urlMap = urlMap;
-        }
+        this.urlMap = urlMap;
     }
 
     getUrlCategory(url: string) {
@@ -13,7 +11,7 @@ export class UrlCategorizer {
             let u = new URL(url);
             return u.host in this.urlMap ? this.urlMap[u.host] : 'Other';
         } else {
-            return null;
+            return 'Other';
         }
     }
 
