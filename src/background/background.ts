@@ -7,7 +7,11 @@ import {Bookmarks} from "../libs/bookmarks"
 let bookmarks = new Bookmarks()
 const dataURL = chrome.runtime.getURL('/data/urlClasses.json');
 
-async function getCurrentTab() {
+/**
+ * Returns a promise with the current active tab.
+ * @return tab active tab promise.
+ */
+async function getCurrentTab(): Promise<chrome.tabs.Tab> {
     let [tab] = await chrome.tabs.query({
         active: true,
         currentWindow: true
@@ -36,7 +40,10 @@ function notifyBookmarkUpdate(url: string, bookmarkExists: boolean) {
     });
 }
 
-function notifyBookmarkUpdateAuto() {
+/**
+ * Notifies the current tab whether bookmark exists or not
+ */
+function notifyBookmarkUpdateCurrent() {
     getCurrentTab().then(tab => {
         if (tab.id && tab.url)
             chrome.tabs.sendMessage(
@@ -49,17 +56,23 @@ function notifyBookmarkUpdateAuto() {
     });
 }
 
-function notifyContentVisible(tabId: number) {
-    chrome.storage.sync.get(['contentVisible'], (storage) => {
+/**
+ * Sends a message whether quickmark is visible or not. Meant to be called when the active tab switches.
+ * @param tabId current active tab.
+ */
+function notifyQuickMarkVisible(tabId: number) {
+    chrome.storage.sync.get(['quickMarkVisible'], (storage) => {
         chrome.tabs.sendMessage(tabId, {
-            action: 'contentVisible',
-            contentVisible: storage['contentVisible']
+            action: 'quickMarkVisible',
+            quickMarkVisible: storage['quickMarkVisible']
         })
 
     })
 }
 
-
+/**
+ * Fetch data for the URL categorizer.
+ */
 fetch(dataURL)
     .then((response) => response.json())
     .then((urlMap) => {
@@ -82,8 +95,8 @@ chrome.bookmarks.onRemoved.addListener((id, removeInfo) => {
  * Propagate updates during tab switches
  */
 chrome.tabs.onActivated.addListener((activeInfo) => {
-    notifyBookmarkUpdateAuto()
-    notifyContentVisible(activeInfo.tabId)
+    notifyBookmarkUpdateCurrent()
+    notifyQuickMarkVisible(activeInfo.tabId)
 })
 
 /**
@@ -93,16 +106,20 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log(request.action)
     try {
         switch (request.action) {
+
             case "check-bookmark":
                 sendResponse(bookmarks.bookmarkExists(request.url))
                 break
+
             case "save-bookmark":
                 let category = String(urlClassifier.getUrlCategory(request.url)).valueOf()
                 bookmarks.saveBookmark(request.url, request.title, [category]).then(sendResponse)
                 break
+
             case "remove-bookmark":
                 bookmarks.removeBookmark(request.url)
                 break
+
         }
     } catch (e) {
         console.error(e)
