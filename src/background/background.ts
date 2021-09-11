@@ -112,12 +112,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 sendResponse(bookmarks.bookmarkExists(request.url))
                 break
             case "save-bookmark":
-                let category: string | BookmarkTreeNode = findCategoryOrParent(request.url);
-                console.log(`Got category/parent of the URL: "${request.url}" to be ${category}`);
-                if (typeof category === "object") {
-                    bookmarks.saveBookmark(request.url, request.title, [], category.parentId).then(sendResponse);
+                let bookmarkOrCategory: string | BookmarkTreeNode = findCategoryOrParent(request.url);
+                console.log(`Got category/parent of the URL: "${request.url}" to be ${bookmarkOrCategory}`);
+                if (typeof bookmarkOrCategory === "object") { //
+                    bookmarks.saveBookmark(request.url, request.title, [], bookmarkOrCategory.parentId).then(sendResponse);
                 } else {
-                    bookmarks.saveBookmark(request.url, request.title, [category]).then(sendResponse);
+                    bookmarks.saveBookmark(request.url, request.title, [bookmarkOrCategory]).then(sendResponse);
                 }
                 break
 
@@ -131,6 +131,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
 });
 
+/**
+ * Finds a saved bookmark or the proper category for the URL.
+ * 
+ * @param url 
+ * @returns BookmarkNode if there are similar urls present, or str if using classifier.
+ */
 function findCategoryOrParent(url: string): string | BookmarkTreeNode {
     // TODO: Refactor this to not return the TreeNode when API allows this
     let allUrls = bookmarks.getAllBookmarkURLs();
