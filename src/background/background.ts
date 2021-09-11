@@ -1,4 +1,6 @@
 // *----*----*----* Globals *----*----*----*
+import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
+
 let urlClassifier: UrlCategorizer
 
 import {UrlCategorizer} from "../libs/urlCategorizer"
@@ -106,14 +108,17 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log(request.action)
     try {
         switch (request.action) {
-
             case "check-bookmark":
                 sendResponse(bookmarks.bookmarkExists(request.url))
                 break
-
             case "save-bookmark":
-                let category = String(urlClassifier.getUrlCategory(request.url)).valueOf()
-                bookmarks.saveBookmark(request.url, request.title, [category]).then(sendResponse)
+                let category: string | BookmarkTreeNode = findCategoryOrParent(request.url);
+                console.log(`Got category/parent of the URL: "${request.url}" to be ${category}`);
+                if (typeof category === "object") {
+                    bookmarks.saveBookmark(request.url, request.title, [], category.parentId).then(sendResponse);
+                } else {
+                    bookmarks.saveBookmark(request.url, request.title, [category]).then(sendResponse);
+                }
                 break
 
             case "remove-bookmark":
@@ -125,3 +130,16 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         console.error(e)
     }
 });
+
+function findCategoryOrParent(url: string): string | BookmarkTreeNode {
+    // TODO: Refactor this to not return the TreeNode when API allows this
+    let allUrls = bookmarks.getAllBookmarkURLs();
+    let closestUrls = urlClassifier.getMostSimilarUrl(url, allUrls);
+    if (closestUrls.length > 0) {
+        let bookmark = bookmarks.getBookmark(closestUrls[0]);
+        if (bookmark) {
+            return bookmark;
+        }
+    }
+    return String(urlClassifier.getUrlCategory(url)).valueOf();
+}

@@ -45,10 +45,12 @@ export class Bookmarks {
      * @param url
      * @param title
      * @param folderName
+     * @param parentId
      */
-    async saveBookmark(url: string, title: string, folderName: string[]) {
-        let folder = await this.createFolder(folderName);
-
+    async saveBookmark(url: string, title: string, folderName: string[], parentId?: string) {
+        if (!parentId) {
+            parentId = (await this.createFolder(folderName)).id;
+        }
         let bookmarks = this.bookmarkMap.get(url)
         if (bookmarks) {
             const renamedBookmark = await chrome.bookmarks.update(
@@ -56,13 +58,13 @@ export class Bookmarks {
                 {'title': title},
             );
             const finalBookmark = await chrome.bookmarks.move(renamedBookmark.id,
-                {'parentId': folder.id},
+                {'parentId': parentId},
             )
             this.syncWithChrome()
             console.log("Saved bookmark: ", finalBookmark);
         } else { // new bookmark : create
             chrome.bookmarks.create({
-                    'parentId': folder.id,
+                    'parentId': parentId,
                     'title': title,
                     'url': url
                 },
