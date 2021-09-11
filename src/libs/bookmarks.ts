@@ -9,7 +9,7 @@ const BOOKMARK_FOLDER_TITLE = 'SmartMark'
  */
 export class Bookmarks {
 
-    private bookmarkMap: Record<string, Object[]> = {}
+    private bookmarkMap: Map<string, BookmarkTreeNode[]> = new Map<string, BookmarkTreeNode[]>()
     private folderTree: Object | undefined = {}
 
     private rootNode!: BookmarkTreeNode
@@ -49,9 +49,10 @@ export class Bookmarks {
     async saveBookmark(url: string, title: string, folderName: string[]) {
         let folder = await this.createFolder(folderName);
 
-        if (url in this.bookmarkMap) { // bookmark exists, update title and folder
-            // @ts-ignore complains about the ['id']
-            const renamedBookmark = await chrome.bookmarks.update(this.bookmarkMap[url][0]['id'],
+        let bookmarks = this.bookmarkMap.get(url)
+        if (bookmarks) {
+            const renamedBookmark = await chrome.bookmarks.update(
+                bookmarks[0].id,
                 {'title': title},
             );
             const finalBookmark = await chrome.bookmarks.move(renamedBookmark.id,
@@ -80,17 +81,19 @@ export class Bookmarks {
      * @param title
      */
     renameBookmark(url: string, title: string) {
-        // @ts-ignore
-        chrome.bookmarks.update(this.bookmarkMap[url][0]['id'],
-            {
-                'title': title,
-                'url': url
-            },
-            (newBookmark) => {
-                this.syncWithChrome()
-                console.log("Saved bookmark: ", newBookmark);
-            },
-        );
+        let bookmarks = this.bookmarkMap.get(url)
+        if (bookmarks) {
+            chrome.bookmarks.update(bookmarks[0]['id'],
+                {
+                    'title': title,
+                    'url': url
+                },
+                (newBookmark) => {
+                    this.syncWithChrome()
+                    console.log("Saved bookmark: ", newBookmark);
+                },
+            );
+        }
     }
 
     /**
@@ -101,14 +104,16 @@ export class Bookmarks {
      */
     async moveBookmark(url: string, folderName: string[]) {
         let folder = await this.createFolder(folderName);
-        // @ts-ignore
-        chrome.bookmarks.move(this.bookmarkMap[url][0]['id'],
-            {'parentId': folder.id},
-            (newBookmark) => {
-                this.syncWithChrome()
-                console.log("Saved bookmark: ", newBookmark);
-            },
-        );
+        let bookmarks = this.bookmarkMap.get(url)
+        if (bookmarks) {
+            chrome.bookmarks.move(bookmarks[0]['id'],
+                {'parentId': folder.id},
+                (newBookmark) => {
+                    this.syncWithChrome()
+                    console.log("Saved bookmark: ", newBookmark);
+                },
+            );
+        }
     }
 
     /**
@@ -117,16 +122,27 @@ export class Bookmarks {
      * @param url
      */
     bookmarkExists(url: string) {
-        return url in this.bookmarkMap
+        return this.bookmarkMap.has(url)
     }
 
     /**
-     * Get bookmark by url. undefined if url not bookmarked
+     * Get first bookmark by url. undefined if url not bookmarked
      *
      * @param url
      */
     getBookmark(url: string) {
-        return this.bookmarkMap[url][0]
+        let bookmarks = this.bookmarkMap.get(url)
+        if (bookmarks)
+            return bookmarks[0]
+        return undefined
+    }
+
+    /**
+     * Returns all bookmarked URLs
+     * @return urls all bookmark urls.
+     */
+    getAllBookmarkURLs(): string[] {
+        return Array.from(this.bookmarkMap.keys());
     }
 
     /**
@@ -135,10 +151,10 @@ export class Bookmarks {
      * @param url
      */
     removeBookmark(url: string) {
-        if (this.bookmarkExists(url)) {
-            this.bookmarkMap[url].forEach(bookmark => {
-                // @ts-ignore
-                chrome.bookmarks.remove(bookmark['id'])
+        let bookmarks = this.bookmarkMap.get(url)
+        if (bookmarks) {
+            bookmarks.forEach(bookmark => {
+                chrome.bookmarks.remove(bookmark.id)
             })
             this.syncWithChrome()
         }
@@ -298,11 +314,11 @@ export class Bookmarks {
      * Updates the URL to bookmark object map
      */
     updateURLMap() {
-        this.bookmarkMap = {}
+        this.bookmarkMap = new Map<string, chrome.bookmarks.BookmarkTreeNode[]>()
         this.visitSubtree(this.rootNode, leaf => {
             if (!((leaf.url!) in this.bookmarkMap))
-                this.bookmarkMap[leaf.url!] = []
-            this.bookmarkMap[leaf.url!].push(leaf) // TODO change leaf to custom object
+                this.bookmarkMap.set(leaf.url!, [])
+            this.bookmarkMap.get(leaf.url!)!.push(leaf) // TODO change leaf to custom object
         })
     }
 
