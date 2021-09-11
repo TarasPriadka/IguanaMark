@@ -1,4 +1,4 @@
-import {UrlCategorizer} from "../libs/urlCategorizer";
+import {UrlCategorizer} from "../src/libs/urlCategorizer";
 import {assert} from "chai";
 
 describe('URL Categorizer Tests', () => { // the tests container
