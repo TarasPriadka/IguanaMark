@@ -1,30 +1,20 @@
-/* Link Button */
 .linkButton {
-    display: inline-block;
-    border: None; /* 4px solid #000000; */
+    border: None;
     box-sizing: border-box;
-    text-decoration: none;
-    font-family: 'Roboto', sans-serif;
-    font-weight: 300;
-    color: #000000;
+    color: black;
+    background-color: #94a5f2;
+    background-image: linear-gradient(56deg, #7478d4 8%, #a5dbff 100%);
     text-align: center;
     transition: all 0.2s;
-    border-radius: 5%;
+    border-radius: 6px;
+    padding: .4em .7em;
+    font-size: 1em;
 }
 
 .linkButton:hover {
     transform: scale(1.1);
-    /*transition: .3s;*/
 }
 
 .linkButton:active {
     transform: scale(1);
-    /*transition: .3s;*/
-}
-
-@media all and (max-width: 30em) {
-    .linkButton {
-        display: block;
-        margin: 0.4em auto;
-    }
 }
