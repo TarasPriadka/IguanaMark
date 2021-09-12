@@ -1,4 +1,6 @@
 // *----*----*----* Globals *----*----*----*
+import {SmartCreateInfo} from "../libs/smartBookmark";
+
 let urlClassifier: UrlCategorizer
 
 import {UrlCategorizer} from "../libs/urlCategorizer"
@@ -108,19 +110,14 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 sendResponse(bookmarks.getByURL(request.url).length > 0)
                 break
             case "save-bookmark":
-                let bookmarkOrCategory: string | BookmarkTreeNode = findCategoryOrParent(request.url);
-                console.log(`Got category/parent of the URL: "${request.url}" to be ${bookmarkOrCategory}`);
-                if (typeof bookmarkOrCategory === "object") { //
-                    bookmarks.saveBookmark(request.url, request.title, [], bookmarkOrCategory.parentId).then(sendResponse);
-                } else {
-                    bookmarks.saveBookmark(request.url, request.title, [bookmarkOrCategory]).then(sendResponse);
-                }
+                saveBookmark({
+                    url: request.url,
+                    title: request.title
+                })
                 break
-
             case "remove-bookmark":
                 bookmarks.removeAll(bookmarks.getByURL(request.url))
                 break
-
         }
     } catch (e) {
         console.error(e)
@@ -128,20 +125,23 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 /**
- * Finds a saved bookmark or the proper category for the URL.
+ * Finds a saved bookmark or the proper category for the new bookmark, and saves it there.
  *
- * @param url
- * @returns BookmarkNode if there are similar urls present, or str if using classifier.
+ * @param createInfo information about the new bookmark
  */
-function findCategoryOrParent(url: string): string | BookmarkTreeNode {
-    // TODO: Refactor this to not return the TreeNode when API allows this
-    let allUrls = bookmarks.getAllBookmarkURLs();
-    let closestUrls = urlClassifier.getMostSimilarUrl(url, allUrls);
-    if (closestUrls.length > 0) {
-        let bookmark = bookmarks.getBookmark(closestUrls[0]);
-        if (bookmark) {
-            return bookmark;
+function saveBookmark(createInfo: SmartCreateInfo) {
+    let allBookmarks = bookmarks.getAllBookmarks();
+    let allURLs = allBookmarks.map(b => b.url)
+
+    let closestURLs = urlClassifier.getMostSimilarUrl(createInfo.url!, allURLs);
+    if (closestURLs.length > 0) {
+        let bookmark = bookmarks.getByURL(closestURLs[0]);
+        if (bookmark.length > 0) {
+            createInfo.parentId = bookmark[0].parentId
+            bookmarks.create(createInfo)
         }
+    } else {
+        let category = urlClassifier.getUrlCategory(createInfo.url!)
+        bookmarks.createInFolder(createInfo, [category]).then()
     }
-    return String(urlClassifier.getUrlCategory(url)).valueOf();
 }
