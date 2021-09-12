@@ -81,14 +81,12 @@ function notifyQuickMarkVisible(tabId: number) {
 
 /**
  * Listeners for created and removed bookmarks that notify the content pages
- * TODO: add onCreated and onRemoved listeners in smartBookmarks.ts that would fire when a bookmark
- *  is moved outside of main folder as well
  */
-chrome.bookmarks.onCreated.addListener((id, bookmark) => {
-    notifyBookmarkUpdate(bookmark.url!, true)
+bookmarks.onCreated.addListener(url => {
+    notifyBookmarkUpdate(url, true)
 })
-chrome.bookmarks.onRemoved.addListener((id, removeInfo) => {
-    notifyBookmarkUpdate(removeInfo.node.url!, false)
+bookmarks.onRemoved.addListener(url => {
+    notifyBookmarkUpdate(url, false)
 })
 
 /**

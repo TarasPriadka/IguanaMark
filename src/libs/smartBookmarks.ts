@@ -8,7 +8,7 @@ import {
     SmartFolder,
     SmartUpdateInfo, SmartRemoveInfo
 } from "./smartBookmark";
-import onChildrenReordered = chrome.bookmarks.onChildrenReordered;
+// import onChildrenReordered = chrome.bookmarks.onChildrenReordered;
 
 const BOOKMARK_FOLDER_TITLE = 'SmartMark'
 
@@ -38,11 +38,11 @@ export class SmartBookmarks {
     private chromeRoot!: BookmarkTreeNode
 
     /**
-     * Events for managing callbacks when bookmarks are created, modified, or removed
+     * Events for managing callbacks when bookmarks are created or removed from the SmartMark folder
      * @private
      */
-    private onRemoved: SmartBookmarkRemovedEvent = new SmartBookmarkRemovedEvent();
     public onCreated: SmartBookmarkCreatedEvent = new SmartBookmarkCreatedEvent();
+    public onRemoved: SmartBookmarkRemovedEvent = new SmartBookmarkRemovedEvent();
 
     constructor() {
         this.syncWithChrome()
@@ -98,7 +98,7 @@ export class SmartBookmarks {
             if (!this.nodeIDMap.has(id) && this.nodeIDMap.has(bookmark.parentId!))
                 this.saveToAllDatastructures(SmartBookmarkNode.fromChrome(bookmark))
         })
-        chrome.bookmarks.onRemoved.addListener((id, removeInfo) => {
+        chrome.bookmarks.onRemoved.addListener((id) => {
             if (this.nodeIDMap.has(id))
                 this.removeFromAllDatastructures(this.nodeIDMap.get(id)!)
         })
@@ -126,7 +126,7 @@ export class SmartBookmarks {
      * Create bookmark or folder in another folder.
      *
      * @param createInfo
-     * @param folder
+     * @param path
      */
     async createInFolder(createInfo: SmartCreateInfo, path: Array<string>) {
         let folder = await this.createFolder(path)
