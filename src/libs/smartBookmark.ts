@@ -1,8 +1,8 @@
+import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
+
 /**
  * Bookmark class as a wrapper for bookmark nodes in chrome api
  */
-import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
-
 export class SmartBookmarkNode implements SmartCreateInfo {
     id: string
     parentId: string
@@ -66,6 +66,10 @@ export class SmartBookmarkNode implements SmartCreateInfo {
         }
     }
 
+    /**
+     * Create a SmartBookmark or SmartFolder from a chrome bookmark node.
+     * @param chromeBookmark existing chrome bookmark
+     */
     static fromChrome(chromeBookmark: BookmarkTreeNode): SmartBookmarkNode {
         if (chromeBookmark.url) {
             return new SmartBookmark(
@@ -84,6 +88,9 @@ export class SmartBookmarkNode implements SmartCreateInfo {
     }
 }
 
+/**
+ * SmartBookmarkNode but only bookmark
+ */
 export class SmartBookmark extends SmartBookmarkNode {
 
     constructor(id: string, parentId: string, url: string, title: string) {
@@ -91,6 +98,9 @@ export class SmartBookmark extends SmartBookmarkNode {
     }
 }
 
+/**
+ * SmartBookmarkNode but only folder
+ */
 export class SmartFolder extends SmartBookmarkNode {
 
     constructor(id: string, parentId: string, title: string, children: Array<SmartBookmarkNode> = []) {
@@ -98,6 +108,11 @@ export class SmartFolder extends SmartBookmarkNode {
     }
 }
 
+/**
+ * Interface for bookmark/folder creation from the API perspective. ie: the
+ * user does not manually set the id, so it is not here. Also folders don't
+ * have a url, so it is optional.
+ */
 export interface SmartCreateInfo {
     parentId?: string
     isFolder?: boolean
@@ -105,17 +120,26 @@ export interface SmartCreateInfo {
     title: string
 }
 
+/**
+ * API interface for updating.
+ */
 export interface SmartUpdateInfo {
     id: string
     url?: string
     title?: string
 }
 
+/**
+ * API interface for moving bookmarks/folders.
+ */
 export interface SmartMoveInfo {
     id: string
     parentId?: string
 }
 
+/**
+ * API interface for removing bookmarks/folders.
+ */
 export interface SmartRemoveInfo {
     id: string
 }

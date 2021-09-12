@@ -1,3 +1,6 @@
+/**
+ * Event class to trigger events when bookmarks are updated in the SmartMark folder.
+ */
 class SmartEvent<F extends Function> {
 
     private listeners: Array<F> = []
@@ -12,10 +15,16 @@ class SmartEvent<F extends Function> {
 
 }
 
+/**
+ * Event for bookmark removal
+ */
 export class SmartBookmarkRemovedEvent
     extends SmartEvent<(url: string) => void> {
 }
 
+/**
+ * Event for bookmark creation
+ */
 export class SmartBookmarkCreatedEvent
     extends SmartEvent<(url: string) => void> {
 }
