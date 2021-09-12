@@ -1,13 +1,20 @@
 // *----*----*----* Globals *----*----*----*
-import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
-
 let urlClassifier: UrlCategorizer
 
 import {UrlCategorizer} from "../libs/urlCategorizer"
-import {Bookmarks} from "../libs/bookmarks"
+import {SmartBookmarks} from "../libs/smartBookmarks"
 
-let bookmarks = new Bookmarks()
+let bookmarks = new SmartBookmarks()
+
+/**
+ * Fetch data for the URL categorizer.
+ */
 const dataURL = chrome.runtime.getURL('/data/urlClasses.json');
+fetch(dataURL)
+    .then((response) => response.json())
+    .then((urlMap) => {
+        urlClassifier = new UrlCategorizer(urlMap);
+    });
 
 /**
  * Returns a promise with the current active tab.
@@ -31,7 +38,7 @@ async function getCurrentTab(): Promise<chrome.tabs.Tab> {
  */
 function notifyBookmarkUpdate(url: string, bookmarkExists: boolean) {
     getCurrentTab().then(tab => {
-        if (tab.id)
+        if (tab && tab.id)
             chrome.tabs.sendMessage(
                 tab.id,
                 {
@@ -47,13 +54,13 @@ function notifyBookmarkUpdate(url: string, bookmarkExists: boolean) {
  */
 function notifyBookmarkUpdateCurrent() {
     getCurrentTab().then(tab => {
-        if (tab.id && tab.url)
+        if (tab && tab.id && tab.url)
             chrome.tabs.sendMessage(
                 tab.id!,
                 {
                     action: "broadcast-update",
                     url: tab.url,
-                    bookmarkExists: bookmarks.bookmarkExists(tab.url)
+                    bookmarkExists: bookmarks.getByURL(tab.url).length > 0
                 });
     });
 }
@@ -73,17 +80,8 @@ function notifyQuickMarkVisible(tabId: number) {
 }
 
 /**
- * Fetch data for the URL categorizer.
- */
-fetch(dataURL)
-    .then((response) => response.json())
-    .then((urlMap) => {
-        urlClassifier = new UrlCategorizer(urlMap);
-    });
-
-/**
  * Listeners for created and removed bookmarks that notify the content pages
- * TODO: add onCreated and onRemoved listeners in bookmarks.ts that would fire when a bookmark
+ * TODO: add onCreated and onRemoved listeners in smartBookmarks.ts that would fire when a bookmark
  *  is moved outside of main folder as well
  */
 chrome.bookmarks.onCreated.addListener((id, bookmark) => {
@@ -109,7 +107,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     try {
         switch (request.action) {
             case "check-bookmark":
-                sendResponse(bookmarks.bookmarkExists(request.url))
+                sendResponse(bookmarks.getByURL(request.url).length > 0)
                 break
             case "save-bookmark":
                 let bookmarkOrCategory: string | BookmarkTreeNode = findCategoryOrParent(request.url);
@@ -122,7 +120,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 break
 
             case "remove-bookmark":
-                bookmarks.removeBookmark(request.url)
+                bookmarks.removeAll(bookmarks.getByURL(request.url))
                 break
 
         }
@@ -133,8 +131,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 /**
  * Finds a saved bookmark or the proper category for the URL.
- * 
- * @param url 
+ *
+ * @param url
  * @returns BookmarkNode if there are similar urls present, or str if using classifier.
  */
 function findCategoryOrParent(url: string): string | BookmarkTreeNode {
