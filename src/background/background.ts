@@ -1,10 +1,10 @@
 // *----*----*----* Globals *----*----*----*
+
+import {SmartBookmarks} from "../libs/smartBookmarks";
+import {UrlCategorizer} from "../libs/urlCategorizer";
 import {SmartCreateInfo} from "../libs/smartBookmark";
 
 let urlClassifier: UrlCategorizer
-
-import {UrlCategorizer} from "../libs/urlCategorizer"
-import {SmartBookmarks} from "../libs/smartBookmarks"
 
 let bookmarks = new SmartBookmarks()
 

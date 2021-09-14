@@ -75,7 +75,7 @@ export class SmartBookmarks {
     /* Read */
 
     /**
-     * Gets all bookmarks and folders in some folder (specficied by id or SmartFolder). Returns ALL bookmarks and
+     * Gets all bookmarks and folders in some folder (specified by id or SmartFolder). Returns ALL bookmarks and
      * folders if parent is undefined. Includes the root (SmartMark) folder.
      *
      * @param parent Optional. Specify Id or SmartFolder to return bookmarks from a specific subdirectory.
@@ -84,16 +84,14 @@ export class SmartBookmarks {
     getAll(parent: string | SmartFolder | undefined = undefined): Array<SmartBookmarkNode> {
         if (parent == undefined) {
             return Array.from(this.nodeIDMap.values())
-        }
-        if (typeof parent === "string") {
+        } else if (typeof parent === "string") {
             if (parent == '') {
                 return this.rootNode.children
             } else if (this.nodeIDMap.has(parent)) {
-                return this.nodeIDMap.get(parent)!.children
+                return (this.nodeIDMap.get(parent) as SmartFolder)!.children
             }
             return []
-        }
-        if (parent instanceof SmartFolder) {
+        } else if (parent instanceof SmartFolder) {
             return parent.children
         }
         return []
@@ -106,17 +104,17 @@ export class SmartBookmarks {
      * @returns bookmarks Array of SmartBookmarks
      */
     getAllBookmarks(parent: string | SmartFolder | undefined = undefined): Array<SmartBookmark> {
-        return this.getAll(parent).filter(b => !b.isFolder)
+        return this.getAll(parent).filter(b => !b.isFolder) as Array<SmartBookmark>
     }
 
     /**
      * Like getAll but only returns the folders. Includes the root (SmartMark) folder.
      *
      * @param parent parent id or node
-     * @returns folders Array of SmartBookmarks
+     * @returns folders Array of SmartFolders
      */
-    getAllFolders(parent: string | SmartFolder | undefined = undefined): Array<SmartBookmark> {
-        return this.getAll(parent).filter(b => b.isFolder)
+    getAllFolders(parent: string | SmartFolder | undefined = undefined): Array<SmartFolder> {
+        return this.getAll(parent).filter(f => f.isFolder) as Array<SmartFolder>
     }
 
     /**
@@ -159,12 +157,18 @@ export class SmartBookmarks {
      * @returns node Node at the given path
      */
     getByPath(path: Array<string>): SmartBookmarkNode | undefined {
-        let node = this.rootNode
-        for (const level of path) {
+        let node: SmartFolder = this.rootNode
+        for (let pathLevel = 0; pathLevel < path.length; pathLevel++) {
+            const level = path[pathLevel]
             if (!node.childrenTitleMap.has(level) || node.childrenTitleMap.get(level)!.length == 0)
                 return undefined
-            // TODO select a folder if possible instead of just the zeroth element
-            node = node.childrenTitleMap.get(level)![0]
+            // select a folder if possible instead of just the zeroth element, which could be a bookmark
+            let subfolders = node.childrenTitleMap.get(level)?.filter(f => f.isFolder)
+            if (subfolders && subfolders.length > 0) {
+                node = subfolders[0] as SmartFolder
+            } else if (pathLevel == path.length - 1) {
+                return node.childrenTitleMap.get(level)?.[0]
+            }
         }
         return node
     }
@@ -199,7 +203,7 @@ export class SmartBookmarks {
             parentId: parent.id,
             title: title
         })
-        let folder = SmartBookmarkNode.fromChrome(chromeFolder)
+        let folder = SmartFolder.fromChrome(chromeFolder)
         this.saveToAllDatastructures(folder)
         return folder
     }
@@ -211,13 +215,14 @@ export class SmartBookmarks {
      * @returns folder the created folder
      */
     async createFolder(path: Array<string>): Promise<SmartFolder> {
-        let node: SmartBookmarkNode = this.rootNode
-        for (const level of path) {
-            if (!node.childrenTitleMap.has(level) || node.childrenTitleMap.get(level)!.length == 0) {
-                node = await this.createFolderShallow(node, level)
+        let node: SmartFolder = this.rootNode
+        for (let pathLevel = 0; pathLevel < path.length; pathLevel++) {
+            const levelName = path[pathLevel]
+            let validSubfolders = node.childrenTitleMap.get(levelName)?.filter(f => f.isFolder)
+            if (validSubfolders && validSubfolders.length > 0) {
+                node = validSubfolders[0] as SmartFolder
             } else {
-                // TODO select a folder if possible instead of just the zeroth matching element
-                node = node.childrenTitleMap.get(level)![0]
+                node = await this.createFolderShallow(node, levelName)
             }
         }
         return node
@@ -241,7 +246,7 @@ export class SmartBookmarks {
             })
         } else {
             chrome.bookmarks.update(updateInfo.id, {
-                url: updateInfo.url || bookmark.url,
+                url: updateInfo.url || (bookmark as SmartBookmark).url,
                 title: updateInfo.title || bookmark.title
             })
         }
@@ -275,9 +280,6 @@ export class SmartBookmarks {
         if (!this.nodeIDMap.has(moveInfo.parentId))
             return
 
-        // oldParent.removeChild(bookmark)
-        // newParent.addChild(bookmark)
-        // bookmark.parentId = updateInfo.parentId
         chrome.bookmarks.move(moveInfo.id, {
             parentId: moveInfo.parentId,
         })
@@ -323,16 +325,17 @@ export class SmartBookmarks {
             return
 
         if (!bookmark.isFolder) {
-            this.onCreated.trigger(bookmark.url)
-            if (this.bookmarkURLMap.has(bookmark.url))
-                this.bookmarkURLMap.get(bookmark.url)!.push(bookmark)
+            let _bookmark = bookmark as SmartBookmark
+            this.onCreated.trigger(_bookmark.url)
+            if (this.bookmarkURLMap.has(_bookmark.url))
+                this.bookmarkURLMap.get(_bookmark.url)!.push(_bookmark)
             else
-                this.bookmarkURLMap.set(bookmark.url, [bookmark]);
+                this.bookmarkURLMap.set(_bookmark.url, [_bookmark]);
         }
 
-        this.nodeIDMap.set(bookmark.id, bookmark)
+        this.nodeIDMap.set(bookmark.id, bookmark);
 
-        this.nodeIDMap.get(bookmark.parentId)?.addChild(bookmark)
+        (this.nodeIDMap.get(bookmark.parentId) as SmartFolder)?.addChild(bookmark)
     }
 
     /**
@@ -344,18 +347,20 @@ export class SmartBookmarks {
      */
     private removeFromAllDatastructures(bookmark: SmartBookmarkNode): void {
         if (bookmark.isFolder) {
-            for (let i = bookmark.children.length - 1; i >= 0; i--) {
-                this.removeFromAllDatastructures(bookmark.children[i])
+            let folder = bookmark as SmartFolder
+            for (let i = folder.children.length - 1; i >= 0; i--) {
+                this.removeFromAllDatastructures(folder.children[i])
             }
         } else {
-            this.onRemoved.trigger(bookmark.url)
-            let sameURLbookmarks = this.bookmarkURLMap.get(bookmark.url)!;
-            sameURLbookmarks.splice(sameURLbookmarks.indexOf(bookmark), 1)
+            let _bookmark = bookmark as SmartBookmark
+            this.onRemoved.trigger(_bookmark.url)
+            let sameUrlBookmarks = this.bookmarkURLMap.get(_bookmark.url)!;
+            sameUrlBookmarks.splice(sameUrlBookmarks.indexOf(_bookmark), 1)
         }
 
-        this.nodeIDMap.delete(bookmark.id)
+        this.nodeIDMap.delete(bookmark.id);
 
-        this.nodeIDMap.get(bookmark.parentId)?.removeChild(bookmark)
+        (this.nodeIDMap.get(bookmark.parentId) as SmartFolder)?.removeChild(bookmark);
     }
 
     /**
@@ -385,21 +390,7 @@ export class SmartBookmarks {
      * @private
      */
     private traverseChromeTree(chromeRoot: BookmarkTreeNode): SmartBookmarkNode {
-        if (chromeRoot.children) { // root is folder
-            let folder = new SmartFolder(
-                chromeRoot.id,
-                chromeRoot.parentId!,
-                chromeRoot.title,
-            )
-
-            this.saveToAllDatastructures(folder)
-
-            chromeRoot.children.forEach(subtree => {
-                this.traverseChromeTree(subtree)
-                // folder.addChild()
-            })
-            return folder
-        } else { // root is bookmark
+        if (chromeRoot.url) { // root is bookmark
             let bookmark = new SmartBookmark(
                 chromeRoot.id,
                 chromeRoot.parentId!,
@@ -410,6 +401,19 @@ export class SmartBookmarks {
             this.saveToAllDatastructures(bookmark)
 
             return bookmark
+        } else { // root is folder
+            let folder = new SmartFolder(
+                chromeRoot.id,
+                chromeRoot.parentId!,
+                chromeRoot.title,
+            )
+
+            this.saveToAllDatastructures(folder)
+
+            chromeRoot.children?.forEach(subtree => {
+                this.traverseChromeTree(subtree)
+            })
+            return folder
         }
     }
 
@@ -422,7 +426,7 @@ export class SmartBookmarks {
     private updateStructs(chromeRoot: BookmarkTreeNode) {
         this.bookmarkURLMap = new Map()
         this.nodeIDMap = new Map()
-        this.rootNode = this.traverseChromeTree(chromeRoot)
+        this.rootNode = this.traverseChromeTree(chromeRoot) as SmartFolder
     }
 
     /**
@@ -434,7 +438,7 @@ export class SmartBookmarks {
     }
 
     /**
-     * MovesSaves a bookmark or a populated folder in all data structures.
+     * Saves a bookmark or a populated folder in all data structures.
      * Only used when a user manually moves a bookmark/folder/populated folder into SmartMark.
      *
      * @param chromeNode Chrome node to move in.
@@ -452,68 +456,73 @@ export class SmartBookmarks {
 
     /**
      * Adds event listeners to chrome's bookmark API events. These are called either when bookmarks
-     * are modified from this file via chrome.bookmarks API, or when a user manually edits bokomarks.
+     * are modified from this file via chrome.bookmarks API, or when a user manually edits bookmarks.
      *
      * @private
      */
     private addEventListeners() {
         chrome.bookmarks.onChanged.addListener((id, changeInfo) => {
             if (this.nodeIDMap.has(id)) {
-                let bookmark = this.nodeIDMap.get(id)!
-                let parent = this.nodeIDMap.get(bookmark.parentId)!
-                let sameURLBookmarks = this.bookmarkURLMap.get(bookmark.url)!
-                sameURLBookmarks.splice(sameURLBookmarks.indexOf(bookmark), 1)
-                parent.removeChild(bookmark)
-
-                if (!bookmark.isFolder)
-                    bookmark.url = changeInfo.url!
-                bookmark.title = changeInfo.title
-
-                if (this.bookmarkURLMap.has(bookmark.url)) {
-                    this.bookmarkURLMap.get(bookmark.url)!.push(bookmark)
+                let node = this.nodeIDMap.get(id)!;
+                let parent = (this.nodeIDMap.get(node.parentId) as SmartFolder)!;
+                parent.removeChild(node);
+                if (node.isFolder) {
+                    node.title = changeInfo.title
                 } else {
-                    this.bookmarkURLMap.set(bookmark.url, [bookmark])
-                }
+                    let bookmark = node as SmartBookmark
 
-                parent.addChild(bookmark)
+                    let sameURLBookmarks = this.bookmarkURLMap.get(bookmark.url)!;
+                    sameURLBookmarks.splice(sameURLBookmarks.indexOf(bookmark), 1);
+                    parent.removeChild(bookmark);
+
+                    bookmark.url = changeInfo.url!;
+                    bookmark.title = changeInfo.title;
+
+                    if (this.bookmarkURLMap.has(bookmark.url)) {
+                        this.bookmarkURLMap.get(bookmark.url)!.push(bookmark);
+                    } else {
+                        this.bookmarkURLMap.set(bookmark.url, [bookmark]);
+                    }
+                }
+                parent.addChild(node)
             }
         })
         chrome.bookmarks.onMoved.addListener((id, moveInfo) => {
-            let oldHas = this.nodeIDMap.has(moveInfo.oldParentId)
-            let nowHas = this.nodeIDMap.has(moveInfo.parentId)
+            let oldHas = this.nodeIDMap.has(moveInfo.oldParentId);
+            let nowHas = this.nodeIDMap.has(moveInfo.parentId);
             if (oldHas && nowHas) {
                 // internal move, need to update datastructures
-                let bookmark = this.nodeIDMap.get(id)!
-                this.nodeIDMap.get(moveInfo.oldParentId)!.removeChild(bookmark)
-                this.nodeIDMap.get(moveInfo.parentId)!.addChild(bookmark)
-                bookmark.parentId = moveInfo.parentId
+                let bookmark = this.nodeIDMap.get(id)!;
+                (this.nodeIDMap.get(moveInfo.oldParentId) as SmartFolder)!.removeChild(bookmark);
+                (this.nodeIDMap.get(moveInfo.parentId) as SmartFolder)!.addChild(bookmark);
+                bookmark.parentId = moveInfo.parentId;
             } else if (oldHas && !nowHas) {
                 // move out, remove
-                this.removeFromAllDatastructures(this.nodeIDMap.get(id)!)
+                this.removeFromAllDatastructures(this.nodeIDMap.get(id)!);
             } else if (!oldHas && nowHas) {
                 // move in, create. Special case: can move a folder with items in it, so need to recurse
                 chrome.bookmarks.getSubTree(id).then(([chromeBookmark]) => {
-                    this.savePopulatedFolder(chromeBookmark)
+                    this.savePopulatedFolder(chromeBookmark);
                 })
             } else {
                 // external move, ignore
-                return
+                return;
             }
         })
         chrome.bookmarks.onCreated.addListener((id, bookmark) => {
             if (!this.nodeIDMap.has(id) && this.nodeIDMap.has(bookmark.parentId!))
-                this.saveToAllDatastructures(SmartBookmarkNode.fromChrome(bookmark))
+                this.saveToAllDatastructures(SmartBookmarkNode.fromChrome(bookmark));
         })
         chrome.bookmarks.onRemoved.addListener((id) => {
             if (id == this.rootNode.id) {
-                this.removeFromAllDatastructures(this.rootNode)
-                this.syncWithChrome()
+                this.removeFromAllDatastructures(this.rootNode);
+                this.syncWithChrome().then();
             } else if (this.nodeIDMap.has(id)) {
-                this.removeFromAllDatastructures(this.nodeIDMap.get(id)!)
+                this.removeFromAllDatastructures(this.nodeIDMap.get(id)!);
             }
         })
         chrome.bookmarks.onImportEnded.addListener(() => {
-            this.syncWithChrome()
+            this.syncWithChrome().then();
         })
         // chrome.bookmarks.onChildrenReordered.addListener(() => {
         // })

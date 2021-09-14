@@ -4,31 +4,82 @@ import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
  * Bookmark class as a wrapper for bookmark nodes in chrome api
  */
 export class SmartBookmarkNode implements SmartCreateInfo {
+
     id: string
     parentId: string
-
     isFolder: boolean
-    /**
-     * If folder, url is ""
-     */
-    url: string
     title: string
 
+    constructor(id: string, parentId: string, isFolder: boolean, title: string) {
+        this.id = id;
+        this.parentId = parentId;
+        this.isFolder = isFolder;
+        this.title = title;
+    }
+
     /**
-     * Empty for bookmarks
+     * Create a SmartBookmark or SmartFolder from a chrome bookmark node.
+     * @param chromeBookmark existing chrome bookmark
      */
+    static fromChrome(chromeBookmark: BookmarkTreeNode): SmartBookmarkNode {
+        if (chromeBookmark.url) {
+            console.log('Creating bookmark ' + chromeBookmark.title)
+            return new SmartBookmark(
+                chromeBookmark.id,
+                chromeBookmark.parentId!,
+                chromeBookmark.url,
+                chromeBookmark.title
+            )
+        } else {
+            console.log('Creating folder ' + chromeBookmark.title)
+            return new SmartFolder(
+                chromeBookmark.id,
+                chromeBookmark.parentId!,
+                chromeBookmark.title
+            )
+        }
+    }
+}
+
+/**
+ * SmartBookmarkNode but only bookmark
+ */
+export class SmartBookmark extends SmartBookmarkNode {
+
+    url: string
+
+    constructor(id: string, parentId: string, url: string, title: string) {
+        super(id, parentId, false, title);
+        this.url = url
+    }
+
+    /**
+     * Create a SmartBookmark from a chrome bookmark node.
+     * @param chromeBookmark existing chrome bookmark
+     */
+    static fromChrome(chromeBookmark: BookmarkTreeNode): SmartBookmark {
+        return new SmartBookmark(
+            chromeBookmark.id,
+            chromeBookmark.parentId!,
+            chromeBookmark.url!,
+            chromeBookmark.title
+        )
+    }
+}
+
+/**
+ * SmartBookmarkNode but only folder
+ */
+export class SmartFolder extends SmartBookmarkNode {
+
     children: Array<SmartBookmarkNode>
     // Used for quickly figuring out the folder name
     childrenIdMap: Map<string, SmartBookmarkNode>
     // Used for quickly traversing folder trees
     childrenTitleMap: Map<string, Array<SmartBookmarkNode>>
 
-    constructor(id: string, parentId: string, isFolder: boolean, url: string, title: string, children: Array<SmartBookmarkNode>) {
-        this.id = id;
-        this.parentId = parentId;
-        this.isFolder = isFolder;
-        this.url = url;
-        this.title = title;
+    constructor(id: string, parentId: string, title: string, children: Array<SmartBookmarkNode> = []) {
+        super(id, parentId, true, title);
 
         this.children = [];
         this.childrenIdMap = new Map()
@@ -67,44 +118,15 @@ export class SmartBookmarkNode implements SmartCreateInfo {
     }
 
     /**
-     * Create a SmartBookmark or SmartFolder from a chrome bookmark node.
+     * Create a SmartFolder from a chrome bookmark node.
      * @param chromeBookmark existing chrome bookmark
      */
-    static fromChrome(chromeBookmark: BookmarkTreeNode): SmartBookmarkNode {
-        if (chromeBookmark.url) {
-            return new SmartBookmark(
-                chromeBookmark.id,
-                chromeBookmark.parentId!,
-                chromeBookmark.url,
-                chromeBookmark.title
-            )
-        } else {
-            return new SmartFolder(
-                chromeBookmark.id,
-                chromeBookmark.parentId!,
-                chromeBookmark.title
-            )
-        }
-    }
-}
-
-/**
- * SmartBookmarkNode but only bookmark
- */
-export class SmartBookmark extends SmartBookmarkNode {
-
-    constructor(id: string, parentId: string, url: string, title: string) {
-        super(id, parentId, false, url, title, []);
-    }
-}
-
-/**
- * SmartBookmarkNode but only folder
- */
-export class SmartFolder extends SmartBookmarkNode {
-
-    constructor(id: string, parentId: string, title: string, children: Array<SmartBookmarkNode> = []) {
-        super(id, parentId, true, "", title, children);
+    static fromChrome(chromeBookmark: BookmarkTreeNode): SmartFolder {
+        return new SmartFolder(
+            chromeBookmark.id,
+            chromeBookmark.parentId!,
+            chromeBookmark.title
+        )
     }
 }
 
