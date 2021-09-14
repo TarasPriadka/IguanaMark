@@ -1,20 +1,28 @@
-.linkButton {
+#smartmark-root {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#smartmark-root button {
     border: None;
     box-sizing: border-box;
     color: black;
     background-color: #94a5f2;
     background-image: linear-gradient(56deg, #7478d4 8%, #a5dbff 100%);
     text-align: center;
-    transition: all 0.2s;
-    border-radius: 6px;
-    padding: .4em .7em;
-    font-size: 1em;
 }
 
-.linkButton:hover {
+#smartmark-root .animated {
+    transition: all 0.2s;
+}
+
+#smartmark-root .animated:hover {
     transform: scale(1.1);
 }
 
-.linkButton:active {
+#smartmark-root .animated:active {
     transform: scale(1);
 }

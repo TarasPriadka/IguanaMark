@@ -10,6 +10,13 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+#smartmark-root .linkButton {
+    padding: .4em .7em;
+    font-size: 1em;
+    border-radius: 6px;
+}
+
+/* Checkbox */
 .checkboxWrapper {
     user-select: none;
     -moz-user-select: none;
@@ -30,13 +37,13 @@ input[type="checkbox"] + span {
     height: 1em;
     margin: -1px 0 0 0;
     vertical-align: middle;
-    background: white left top no-repeat;
+    /*background: white;*/
     border: 1px solid #ccc;
     cursor: pointer;
 }
 
 input[type="checkbox"]:checked + span {
-    background: #94a5f2 -19px top no-repeat;
+    background: #94a5f2;
     border: 1px solid #eee;
 }
 

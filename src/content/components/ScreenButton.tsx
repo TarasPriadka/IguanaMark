@@ -22,26 +22,32 @@ interface IState {
  */
 class ScreenButton extends React.Component<IProps, IState> {
 
+    private unmarkedURL: string;
+    private markedURL: string;
+
     /**
      * constructor
      * @param props properties for the component. None now. See IProps
      */
     constructor(props: any) {
-        super(props)
+        super(props);
 
         this.state = {
             bookmarkExists: false,
             quickMarkVisible: false
         }
 
+        this.unmarkedURL = chrome.runtime.getURL('content/unmarked.svg');
+        this.markedURL = chrome.runtime.getURL('content/marked.svg');
+
         // have to initialize the state this way because checkBookmark is async
-        getBookmarkExists(window.location.href, this.setBookmarkExists)
+        getBookmarkExists(window.location.href, this.setBookmarkExists);
 
         chrome.storage.sync.get('quickMarkVisible', r => this.setState({
             quickMarkVisible: r['quickMarkVisible']
-        }))
+        }));
 
-        this.addListeners()
+        this.addListeners();
     }
 
     /**
@@ -54,18 +60,18 @@ class ScreenButton extends React.Component<IProps, IState> {
 
                     case 'broadcast-update':
                         if (request.url == window.location.href)
-                            this.setBookmarkExists(request.bookmarkExists)
-                        break
+                            this.setBookmarkExists(request.bookmarkExists);
+                        break;
 
                     case 'quickMarkVisible':
                         this.setState({
                             quickMarkVisible: request.quickMarkVisible
-                        })
-                        break
+                        });
+                        break;
 
                 }
             } catch (e) {
-                console.error(e)
+                console.error(e);
             }
         });
     }
@@ -83,9 +89,9 @@ class ScreenButton extends React.Component<IProps, IState> {
             <Draggable onDrag={() => {
                 isDragging = true
             }}>
-                <div className="back-to-top" hidden={!this.state.quickMarkVisible}>
+                <div className="buttonContainer" hidden={!this.state.quickMarkVisible}>
                     <button
-                        className={`linkButton circle ${this.state.bookmarkExists ? "activated" : ""}`}
+                        className={`quickmarkButton animated ${this.state.bookmarkExists ? "activated" : ""}`}
                         id="saveUrl"
                         onClick={() => {
                             if (!isDragging)
@@ -96,7 +102,10 @@ class ScreenButton extends React.Component<IProps, IState> {
                                 }
                             isDragging = false;
                         }}>
-                        {this.state.bookmarkExists ? '★' : '☆'}
+                        <img className="mark"
+                            src={this.state.bookmarkExists ? this.markedURL : this.unmarkedURL}
+                            alt={this.state.bookmarkExists ? '★' : '☆'}
+                        />
                     </button>
                 </div>
             </Draggable>
@@ -110,7 +119,7 @@ class ScreenButton extends React.Component<IProps, IState> {
     private setBookmarkExists = (exists: boolean) => {
         this.setState({
             bookmarkExists: exists
-        })
+        });
     }
 }
 

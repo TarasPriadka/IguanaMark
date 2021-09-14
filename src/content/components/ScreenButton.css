@@ -1,6 +1,6 @@
 @import "/public/main.css";
 
-.back-to-top {
+.buttonContainer {
     opacity: 100;
     transition: opacity .6s ease-in-out;
     z-index: 999;
@@ -14,18 +14,25 @@
     text-align: center;
 }
 
-.back-to-top:hover, .back-to-top:focus, .back-to-top:visited {
-}
+/*.button-container:hover, .button-container:focus, .button-container:visited {*/
+/*}*/
 
-.back-to-top.show {
+.buttonContainer.show {
     opacity: 100;
 }
 
-.circle {
+#smartmark-root .quickmarkButton {
     padding: 0;
     font-size: 30px;
     width: 50px;
     height: 50px;
     border-radius: 50%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+#smartmark-root .mark {
+    height: 30px;
+    display: block;
+    margin: auto;
+    user-select: none;
 }
