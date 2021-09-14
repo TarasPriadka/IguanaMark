@@ -1,12 +1,12 @@
 // *----*----*----* Globals *----*----*----*
 
-import {SmartBookmarks} from "../libs/smartBookmarks";
+import {BookmarkManager} from "../libs/bookmarks/bookmarkManager";
 import {UrlCategorizer} from "../libs/urlCategorizer";
-import {SmartCreateInfo} from "../libs/smartBookmark";
+import {SmartCreateInfo} from "../libs/bookmarks/smartBookmark";
 
 let urlClassifier: UrlCategorizer
 
-let bookmarks = new SmartBookmarks()
+let bookmarkManager = new BookmarkManager()
 
 /**
  * Fetch data for the URL categorizer.
@@ -62,7 +62,7 @@ function notifyBookmarkUpdateCurrent() {
                 {
                     action: "broadcast-update",
                     url: tab.url,
-                    bookmarkExists: bookmarks.getByURL(tab.url).length > 0
+                    bookmarkExists: bookmarkManager.getByURL(tab.url).length > 0
                 });
     });
 }
@@ -84,10 +84,10 @@ function notifyQuickMarkVisible(tabId: number) {
 /**
  * Listeners for created and removed bookmarks that notify the content pages
  */
-bookmarks.onCreated.addListener(url => {
+bookmarkManager.onCreated.addListener(url => {
     notifyBookmarkUpdate(url, true)
 })
-bookmarks.onRemoved.addListener(url => {
+bookmarkManager.onRemoved.addListener(url => {
     notifyBookmarkUpdate(url, false)
 })
 
@@ -107,7 +107,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     try {
         switch (request.action) {
             case "check-bookmark":
-                sendResponse(bookmarks.getByURL(request.url).length > 0)
+                sendResponse(bookmarkManager.getByURL(request.url).length > 0)
                 break
             case "save-bookmark":
                 saveBookmark({
@@ -116,7 +116,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 })
                 break
             case "remove-bookmark":
-                bookmarks.removeAll(bookmarks.getByURL(request.url))
+                bookmarkManager.removeAll(bookmarkManager.getByURL(request.url))
                 break
         }
     } catch (e) {
@@ -130,18 +130,18 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
  * @param createInfo information about the new bookmark
  */
 function saveBookmark(createInfo: SmartCreateInfo) {
-    let allBookmarks = bookmarks.getAllBookmarks();
+    let allBookmarks = bookmarkManager.getAllBookmarks();
     let allURLs = allBookmarks.map(b => b.url)
 
     let closestURLs = urlClassifier.getMostSimilarUrl(createInfo.url!, allURLs);
     if (closestURLs.length > 0) {
-        let bookmark = bookmarks.getByURL(closestURLs[0]);
+        let bookmark = bookmarkManager.getByURL(closestURLs[0]);
         if (bookmark.length > 0) {
             createInfo.parentId = bookmark[0].parentId
-            bookmarks.create(createInfo)
+            bookmarkManager.create(createInfo)
         }
     } else {
         let category = urlClassifier.getUrlCategory(createInfo.url!)
-        bookmarks.createInFolder(createInfo, [category]).then()
+        bookmarkManager.createInFolder(createInfo, [category]).then()
     }
 }

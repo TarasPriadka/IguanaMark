@@ -1,12 +1,13 @@
 import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
 import {SmartBookmarkCreatedEvent, SmartBookmarkRemovedEvent} from "./smartEvent";
 import {
-    SmartCreateInfo,
-    SmartMoveInfo,
     SmartBookmark,
     SmartBookmarkNode,
+    SmartCreateInfo,
     SmartFolder,
-    SmartUpdateInfo, SmartRemoveInfo
+    SmartMoveInfo,
+    SmartRemoveInfo,
+    SmartUpdateInfo
 } from "./smartBookmark";
 // import onChildrenReordered = chrome.bookmarks.onChildrenReordered;
 
@@ -16,7 +17,13 @@ const BOOKMARK_FOLDER_TITLE = 'SmartMark'
  * Container for all interactions with the bookmarks
  * Completely encapsulates the chrome.bookmarks api
  */
-export class SmartBookmarks {
+export class BookmarkManager {
+
+    /**
+     * Events for managing callbacks when bookmarks are created or removed from the SmartMark folder
+     */
+    public onCreated: SmartBookmarkCreatedEvent = new SmartBookmarkCreatedEvent();
+    public onRemoved: SmartBookmarkRemovedEvent = new SmartBookmarkRemovedEvent();
 
     /**
      * Maps URL to bookmarks (no folders).
@@ -36,19 +43,31 @@ export class SmartBookmarks {
      */
     private rootNode!: SmartFolder
 
-    /**
-     * Events for managing callbacks when bookmarks are created or removed from the SmartMark folder
-     * @private
-     */
-    public onCreated: SmartBookmarkCreatedEvent = new SmartBookmarkCreatedEvent();
-    public onRemoved: SmartBookmarkRemovedEvent = new SmartBookmarkRemovedEvent();
-
     constructor() {
         this.syncWithChrome()
         this.addEventListeners()
     }
 
     /* Create */
+
+    /**
+     * Updates the main chrome root node. Creates a SmartMark folder if it didn't exist already.
+     */
+    private static async getChromeRootNode(): Promise<BookmarkTreeNode> {
+        let tree = await chrome.bookmarks.getTree()
+
+        for (const element of tree[0].children![0].children!) {
+            if (element.title === BOOKMARK_FOLDER_TITLE) {
+                return element
+            }
+        }
+
+        console.log("Didn't find bookmark folder. Creating one now...");
+        return await chrome.bookmarks.create({
+            'parentId': "1",
+            'title': BOOKMARK_FOLDER_TITLE
+        })
+    }
 
     /**
      * Create a bookmark or folder.
@@ -59,6 +78,8 @@ export class SmartBookmarks {
     create(createInfo: SmartCreateInfo) {
         chrome.bookmarks.create(createInfo).then()
     }
+
+    /* Read */
 
     /**
      * Create bookmark or folder in another folder.
@@ -71,8 +92,6 @@ export class SmartBookmarks {
         createInfo.parentId = folder.id
         this.create(createInfo)
     }
-
-    /* Read */
 
     /**
      * Gets all bookmarks and folders in some folder (specified by id or SmartFolder). Returns ALL bookmarks and
@@ -91,10 +110,9 @@ export class SmartBookmarks {
                 return (this.nodeIDMap.get(parent) as SmartFolder)!.children
             }
             return []
-        } else if (parent instanceof SmartFolder) {
+        } else {
             return parent.children
         }
-        return []
     }
 
     /**
@@ -134,6 +152,8 @@ export class SmartBookmarks {
         return this.nodeIDMap.get(id)
     }
 
+    // TODO should we have getByTitle() or just have find() since titles aren't unique and there's also getByPath()?
+
     /**
      * Returns all bookmarks with a given URL. Returns an array because
      * duplicates are possible in cases where a user manually adds a bookmark
@@ -147,8 +167,6 @@ export class SmartBookmarks {
             return this.bookmarkURLMap.get(url)!
         return []
     }
-
-    // TODO should we have getByTitle() or just have find() since titles aren't unique and there's also getByPath()?
 
     /**
      * Gets a folder or bookmark by path. undefined if not found. Do not include root (SmartMark) in the path.
@@ -188,24 +206,6 @@ export class SmartBookmarks {
         }
         folderName.pop()
         return folderName
-    }
-
-    /**
-     * Helper for creating a single folder.
-     *
-     * @param parent where to create the folder
-     * @param title what to name the folder
-     * @returns folder created SmartFolder
-     * @private
-     */
-    private async createFolderShallow(parent: SmartFolder, title: string): Promise<SmartFolder> {
-        let chromeFolder = await chrome.bookmarks.create({
-            parentId: parent.id,
-            title: title
-        })
-        let folder = SmartFolder.fromChrome(chromeFolder)
-        this.saveToAllDatastructures(folder)
-        return folder
     }
 
     /**
@@ -314,6 +314,32 @@ export class SmartBookmarks {
     /* Helpers */
 
     /**
+     * Syncs local bookmark data structures with the chrome bookmarks api.
+     * Typically shouldn't need to be called outside of this class.
+     */
+    async syncWithChrome() {
+        this.updateStructs(await BookmarkManager.getChromeRootNode())
+    }
+
+    /**
+     * Helper for creating a single folder.
+     *
+     * @param parent where to create the folder
+     * @param title what to name the folder
+     * @returns folder created SmartFolder
+     * @private
+     */
+    private async createFolderShallow(parent: SmartFolder, title: string): Promise<SmartFolder> {
+        let chromeFolder = await chrome.bookmarks.create({
+            parentId: parent.id,
+            title: title
+        })
+        let folder = SmartFolder.fromChrome(chromeFolder)
+        this.saveToAllDatastructures(folder)
+        return folder
+    }
+
+    /**
      * Saves a node to all data structures.
      * Does not affect chrome. Chrome API needs to be called separately.
      *
@@ -364,25 +390,6 @@ export class SmartBookmarks {
     }
 
     /**
-     * Updates the main chrome root node. Creates a SmartMark folder if it didn't exist already.
-     */
-    private async updateChromeRootNode(): Promise<BookmarkTreeNode> {
-        let tree = await chrome.bookmarks.getTree()
-
-        for (const element of tree[0].children![0].children!) {
-            if (element.title === BOOKMARK_FOLDER_TITLE) {
-                return element
-            }
-        }
-
-        console.log("Didn't find bookmark folder. Creating one now...");
-        return await chrome.bookmarks.create({
-            'parentId': "1",
-            'title': BOOKMARK_FOLDER_TITLE
-        })
-    }
-
-    /**
      * Recursive helper that updates the folder tree structure to match what the browser has.
      *
      * @param chromeRoot chrome root to convert to SmartBookmarkNode
@@ -427,14 +434,6 @@ export class SmartBookmarks {
         this.bookmarkURLMap = new Map()
         this.nodeIDMap = new Map()
         this.rootNode = this.traverseChromeTree(chromeRoot) as SmartFolder
-    }
-
-    /**
-     * Syncs local bookmark data structures with the chrome bookmarks api.
-     * Typically shouldn't need to be called outside of this class.
-     */
-    async syncWithChrome() {
-        this.updateStructs(await this.updateChromeRootNode())
     }
 
     /**
@@ -527,5 +526,4 @@ export class SmartBookmarks {
         // chrome.bookmarks.onChildrenReordered.addListener(() => {
         // })
     }
-
 }
