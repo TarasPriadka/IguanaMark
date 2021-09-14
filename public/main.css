@@ -26,3 +26,13 @@
 #smartmark-root .animated:active {
     transform: scale(1);
 }
+
+#smartmark-root .noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -webkit-user-drag: none; /* Any MacOS? */
+    -khtml-user-select: none; /* KDE Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}

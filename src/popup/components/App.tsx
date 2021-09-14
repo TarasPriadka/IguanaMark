@@ -54,7 +54,7 @@ class App extends React.Component<IProps, IState> {
     render() {
         return (
             <div className="App">
-                <button className="linkButton animated" id="saveUrl" onClick={() => {
+                <button className="linkButton animated noselect" id="saveUrl" onClick={() => {
                     getCurrentTab().then((tab) => {
                         if (tab.title != null && tab.url != null) {
                             if (this.state.bookmarkExists) {
@@ -69,7 +69,7 @@ class App extends React.Component<IProps, IState> {
                     {this.state.bookmarkExists ? "Unmark Current Page" : "Mark Current Page"}
                 </button>
                 <br/>
-                <span className={"checkboxWrapper"} onClick={() => {
+                <span className={"checkboxWrapper noselect"} onClick={() => {
                     this.setQuickMarkVisible(!this.state.quickMarkVisible)
                 }}>
                     <input type="checkbox" checked={this.state.quickMarkVisible}/>

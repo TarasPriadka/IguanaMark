@@ -16,10 +16,6 @@
 }
 
 /* Checkbox */
-.checkboxWrapper {
-  user-select: none;
-}
-
 input[type="checkbox"] {
   display: none;
 }
