@@ -1,13 +1,22 @@
 // *----*----*----* Globals *----*----*----*
-import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
+
+import {BookmarkManager} from "../libs/bookmarks/bookmarkManager";
+import {UrlCategorizer} from "../libs/urlCategorizer";
+import {SmartCreateInfo} from "../libs/bookmarks/smartBookmark";
 
 let urlClassifier: UrlCategorizer
 
-import {UrlCategorizer} from "../libs/urlCategorizer"
-import {Bookmarks} from "../libs/bookmarks"
+let bookmarkManager = new BookmarkManager()
 
-let bookmarks = new Bookmarks()
+/**
+ * Fetch data for the URL categorizer.
+ */
 const dataURL = chrome.runtime.getURL('/data/urlClasses.json');
+fetch(dataURL)
+    .then((response) => response.json())
+    .then((urlMap) => {
+        urlClassifier = new UrlCategorizer(urlMap);
+    });
 
 /**
  * Returns a promise with the current active tab.
@@ -31,7 +40,7 @@ async function getCurrentTab(): Promise<chrome.tabs.Tab> {
  */
 function notifyBookmarkUpdate(url: string, bookmarkExists: boolean) {
     getCurrentTab().then(tab => {
-        if (tab.id)
+        if (tab && tab.id)
             chrome.tabs.sendMessage(
                 tab.id,
                 {
@@ -47,13 +56,13 @@ function notifyBookmarkUpdate(url: string, bookmarkExists: boolean) {
  */
 function notifyBookmarkUpdateCurrent() {
     getCurrentTab().then(tab => {
-        if (tab.id && tab.url)
+        if (tab && tab.id && tab.url)
             chrome.tabs.sendMessage(
                 tab.id!,
                 {
                     action: "broadcast-update",
                     url: tab.url,
-                    bookmarkExists: bookmarks.bookmarkExists(tab.url)
+                    bookmarkExists: bookmarkManager.getByURL(tab.url).length > 0
                 });
     });
 }
@@ -73,24 +82,13 @@ function notifyQuickMarkVisible(tabId: number) {
 }
 
 /**
- * Fetch data for the URL categorizer.
- */
-fetch(dataURL)
-    .then((response) => response.json())
-    .then((urlMap) => {
-        urlClassifier = new UrlCategorizer(urlMap);
-    });
-
-/**
  * Listeners for created and removed bookmarks that notify the content pages
- * TODO: add onCreated and onRemoved listeners in bookmarks.ts that would fire when a bookmark
- *  is moved outside of main folder as well
  */
-chrome.bookmarks.onCreated.addListener((id, bookmark) => {
-    notifyBookmarkUpdate(bookmark.url!, true)
+bookmarkManager.onCreated.addListener(url => {
+    notifyBookmarkUpdate(url, true)
 })
-chrome.bookmarks.onRemoved.addListener((id, removeInfo) => {
-    notifyBookmarkUpdate(removeInfo.node.url!, false)
+bookmarkManager.onRemoved.addListener(url => {
+    notifyBookmarkUpdate(url, false)
 })
 
 /**
@@ -109,22 +107,17 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     try {
         switch (request.action) {
             case "check-bookmark":
-                sendResponse(bookmarks.bookmarkExists(request.url))
+                sendResponse(bookmarkManager.getByURL(request.url).length > 0)
                 break
             case "save-bookmark":
-                let bookmarkOrCategory: string | BookmarkTreeNode = findCategoryOrParent(request.url);
-                console.log(`Got category/parent of the URL: "${request.url}" to be ${bookmarkOrCategory}`);
-                if (typeof bookmarkOrCategory === "object") { //
-                    bookmarks.saveBookmark(request.url, request.title, [], bookmarkOrCategory.parentId).then(sendResponse);
-                } else {
-                    bookmarks.saveBookmark(request.url, request.title, [bookmarkOrCategory]).then(sendResponse);
-                }
+                saveBookmark({
+                    url: request.url,
+                    title: request.title
+                })
                 break
-
             case "remove-bookmark":
-                bookmarks.removeBookmark(request.url)
+                bookmarkManager.removeAll(bookmarkManager.getByURL(request.url))
                 break
-
         }
     } catch (e) {
         console.error(e)
@@ -132,20 +125,23 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 /**
- * Finds a saved bookmark or the proper category for the URL.
- * 
- * @param url 
- * @returns BookmarkNode if there are similar urls present, or str if using classifier.
+ * Finds a saved bookmark or the proper category for the new bookmark, and saves it there.
+ *
+ * @param createInfo information about the new bookmark
  */
-function findCategoryOrParent(url: string): string | BookmarkTreeNode {
-    // TODO: Refactor this to not return the TreeNode when API allows this
-    let allUrls = bookmarks.getAllBookmarkURLs();
-    let closestUrls = urlClassifier.getMostSimilarUrl(url, allUrls);
-    if (closestUrls.length > 0) {
-        let bookmark = bookmarks.getBookmark(closestUrls[0]);
-        if (bookmark) {
-            return bookmark;
+function saveBookmark(createInfo: SmartCreateInfo) {
+    let allBookmarks = bookmarkManager.getAllBookmarks();
+    let allURLs = allBookmarks.map(b => b.url)
+
+    let closestURLs = urlClassifier.getMostSimilarUrl(createInfo.url!, allURLs);
+    if (closestURLs.length > 0) {
+        let bookmark = bookmarkManager.getByURL(closestURLs[0]);
+        if (bookmark.length > 0) {
+            createInfo.parentId = bookmark[0].parentId
+            bookmarkManager.create(createInfo)
         }
+    } else {
+        let category = urlClassifier.getUrlCategory(createInfo.url!)
+        bookmarkManager.createInFolder(createInfo, [category]).then()
     }
-    return String(urlClassifier.getUrlCategory(url)).valueOf();
 }

@@ -26,7 +26,7 @@ export class UrlCategorizer {
      * @param url link to categorize
      * @returns string category of the URL
      */
-    getUrlCategory(url: string) {
+    getUrlCategory(url: string): string {
         if (this.urlMap != undefined) {
             let u = new URL(url);
             return u.host in this.urlMap ? this.urlMap[u.host] : 'Other';
