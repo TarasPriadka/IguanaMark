@@ -1,5 +1,3 @@
-// src/App.tsx
-
 import React from "react";
 import {saveCurrentPage, removeCurrentPage, getBookmarkExists} from "../../libs/ui";
 import "./App.css";

@@ -1,6 +1,6 @@
 @import "/public/main.css";
 
-.buttonContainer {
+#smartmark-root .buttonContainer {
     opacity: 100;
     transition: opacity .6s ease-in-out;
     z-index: 999;
@@ -14,18 +14,15 @@
     text-align: center;
 }
 
-/*.button-container:hover, .button-container:focus, .button-container:visited {*/
-/*}*/
-
-.buttonContainer.show {
+#smartmark-root .buttonContainer.show {
     opacity: 100;
 }
 
 #smartmark-root .quickmarkButton {
     padding: 0;
     font-size: 30px;
-    width: 50px;
-    height: 50px;
+    width: initial;
+    height: inherit;
     border-radius: 50%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
