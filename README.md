@@ -1,29 +1,31 @@
-# Chrome Extension boilerplate created with React Typescript
+# SmartMark Manager
 
-## Getting started
+Have you ever felt annoyed while managing your bookmarks in Chrome? SmartMarks will improve your day-to-day interactions with your browser by intelligently storing your bookmark data using the browser's user interface. 
 
-Create a project based on this boilerplate.
+## Installing the extension
+First, clone the repository to your computer.
 
-```
-$ npx degit https://github.com/sivertschou/react-typescript-chrome-extension-boilerplate.git#christmas <project-name>
-```
-
-Navigate to the project directory and install the dependencies.
+Navigate to the project directory, install the dependencies and build the extension.
 
 ```
+$ cd {smartmark_location}
 $ npm install
+$ npm start build
 ```
 
-To build the extension, and rebuild it when the files are changed, run
-
-```
-$ npm start
-```
-
-After the project has been built, a directory named `dist` has been created. You have to add this directory to your Chrome browser:
+Add a newly created `dist` directory to your Chrome browser:
 
 1. Open Chrome.
 2. Navigate to `chrome://extensions`.
 3. Enable _Developer mode_.
 4. Click _Load unpacked_.
 5. Select the `dist` directory.
+
+You are all set!
+
+## Running Tests
+
+In the root folder run:
+```
+npm start test
+```
