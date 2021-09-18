@@ -6,7 +6,7 @@ import ScreenButton from "./components/ScreenButton";
 
 // Create a div to render the <App /> component to.
 const root = document.createElement('div');
-root.id = "smartmark-root";
+root.id = "iguana-root";
 document.body.appendChild(root);
 
 // Render the <App /> component.
