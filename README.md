@@ -1,6 +1,6 @@
-# SmartMark Manager
+# IguanaMark Intelligent Bookmark Manager
 
-Have you ever felt annoyed while managing your bookmarks in Chrome? SmartMarks will improve your day-to-day interactions with your browser by intelligently storing your bookmark data using the browser's user interface. 
+Have you ever felt annoyed while managing your bookmarks in Chrome? IguanaMark will improve your day-to-day interactions with your browser by intelligently storing your bookmark data using the browser's user interface. 
 
 ## Installing the extension
 First, clone the repository to your computer.
@@ -8,7 +8,8 @@ First, clone the repository to your computer.
 Navigate to the project directory, install the dependencies and build the extension.
 
 ```
-cd {smartmark_location}
+git clone https://github.com/TarasPriadka/IguanaMark.git
+cd IguanaMark
 npm install
 npm run build
 ```

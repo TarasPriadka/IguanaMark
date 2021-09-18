@@ -1,6 +1,6 @@
 {
-  "name": "SmartMark",
-  "description": "Smart bookmark manager.",
+  "name": "IguanaMark",
+  "description": "Intelligent bookmark manager.",
   "version": "0.0.1",
   "manifest_version": 3,
   "icons": {

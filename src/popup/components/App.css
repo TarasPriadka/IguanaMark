@@ -34,7 +34,7 @@ input[type="checkbox"] + span {
 }
 
 input[type="checkbox"]:checked + span {
-  background: #94a5f2;
+  background: #51B848;
   border: 1px solid #eee;
 }
 
