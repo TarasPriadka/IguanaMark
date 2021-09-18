@@ -102,7 +102,7 @@ class ScreenButton extends React.Component<IProps, IState> {
                                 }
                             isDragging = false;
                         }}>
-                        <img className="mark"
+                        <img className="mark noselect"
                             src={this.state.bookmarkExists ? this.markedURL : this.unmarkedURL}
                             alt={this.state.bookmarkExists ? '★' : '☆'}
                         />
