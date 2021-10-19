@@ -1,0 +1,155 @@
+/*main*/
+#iguana-root {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#iguana-root button {
+    border: None;
+    box-sizing: border-box;
+    color: black;
+    background-color: #51B848;
+    text-align: center;
+}
+
+#iguana-root .animated {
+    transition: all 0.2s;
+}
+
+#iguana-root .animated:hover {
+    transform: scale(1.1);
+}
+
+#iguana-root .animated:active {
+    transform: scale(1);
+}
+
+#iguana-root .noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -webkit-user-drag: none; /* Any MacOS? */
+    -khtml-user-select: none; /* KDE Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
+.App {
+    background-color: whitesmoke;
+    border-color: blue;
+    border-left: solid;
+    border-left-color: #51B848;
+    border-left-width: 10px;
+    height: 550px;
+    width: 400px;
+
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.read-icon {
+    width: 36px;
+    height: 36px;
+}
+
+.read-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.read-icon-box {
+    vertical-align: center;
+    margin: auto;
+}
+
+input.form-control {
+    width: 290px !important;
+}
+
+.scrollable {
+    overflow-y: auto;
+}
+
+.list-button {
+    border-radius: 50%;
+    border: 1px solid white;
+    background-color: white;
+    width: 32px;
+    height: 32px;
+
+    user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+}
+
+.list-button:active {
+    background-color: white;
+}
+
+.list-button:hover {
+    background-color: white;
+    transform: scale(1.1);
+}
+
+.tag {
+    white-space: nowrap;
+}
+
+.tag-inside {
+    cursor: pointer;
+}
+
+.tag:hover {
+    border-width: 0px;
+    background-color: white;
+    transform: scale(1.05);
+}
+
+.tag-bar {
+    user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+}
+
+.tag-button-close {
+    border-radius: 10%;
+    border: 0 solid white;
+    background-color: transparent;
+    width: 14px;
+    height: 14px;
+    float: right;
+
+    margin-left: 2px !important;
+
+    text-color: white;
+    font-size: 10px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.sleek-input {
+    border: 0;
+    outline: 0;
+    background: transparent;
+}
+
+.tag-creation {
+    color: white;
+    width: 7em;
+}
+
+.title-input {
+    border-bottom: 1px solid #aaa;
+    width: 8em;
+    border-bottom: 1px solid black;
+    text-underline: black;
+    overflow-x: hidden;
+}

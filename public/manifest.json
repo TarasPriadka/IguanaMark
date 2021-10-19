@@ -1,0 +1,22 @@
+{
+  "name": "IguanaMark",
+  "description": "Intelligent bookmark manager.",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png"
+    },
+    "default_popup": "popup.html"
+  },
+  "web_accessible_resources": [{
+    "resources": ["data/*.json", "content/*"],
+    "matches": ["http://*/*", "https://*/*"]
+  }]
+}
