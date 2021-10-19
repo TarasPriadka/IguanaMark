@@ -25,6 +25,16 @@ Results are loaded into the `dist` directory, which you can load in Chrome:
 
 You are all set!
 
+## Development
+
+1. In the root folder run:
+`npm start`
+
+2. Follow the Chrome installation steps.
+
+This will look watch for changing code, and chrome will automatically update the extension.
+
+
 ## Running Tests
 
 In the root folder run:
