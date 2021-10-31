@@ -1,22 +1,9 @@
 // *----*----*----* Globals *----*----*----*
 
 import {BookmarkManager} from "../libs/bookmarks/bookmarkManager";
-import {UrlCategorizer} from "../libs/urlCategorizer";
 import {SmartCreateInfo} from "../libs/bookmarks/smartBookmark";
 
-let urlClassifier: UrlCategorizer
-
 let bookmarkManager = new BookmarkManager()
-
-/**
- * Fetch data for the URL categorizer.
- */
-const dataURL = chrome.runtime.getURL('/data/urlClasses.json');
-fetch(dataURL)
-    .then((response) => response.json())
-    .then((urlMap) => {
-        urlClassifier = new UrlCategorizer(urlMap);
-    });
 
 /**
  * Returns a promise with the current active tab.
@@ -133,15 +120,16 @@ function saveBookmark(createInfo: SmartCreateInfo) {
     let allBookmarks = bookmarkManager.getAllBookmarks();
     let allURLs = allBookmarks.map(b => b.url)
 
-    let closestURLs = urlClassifier.getMostSimilarUrl(createInfo.url!, allURLs);
-    if (closestURLs.length > 0) {
-        let bookmark = bookmarkManager.getByURL(closestURLs[0]);
-        if (bookmark.length > 0) {
-            createInfo.parentId = bookmark[0].parentId
-            bookmarkManager.create(createInfo)
-        }
-    } else {
-        let category = urlClassifier.getUrlCategory(createInfo.url!)
-        bookmarkManager.createInFolder(createInfo, [category]).then()
-    }
+    let category = "Unread";
+    bookmarkManager.createInFolder(createInfo, [category]).then()
+
+    // if (closestURLs.length > 0) {
+    //     let bookmark = bookmarkManager.getByURL(closestURLs[0]);
+    //     if (bookmark.length > 0) {
+    //         createInfo.parentId = bookmark[0].parentId
+    //         bookmarkManager.create(createInfo)
+    //     }
+    // } else {
+    //
+    // }
 }

@@ -1,50 +1,50 @@
-// const webpack = require("webpack");
-const path = require("path");
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require("copy-webpack-plugin");
 
-const config = {
+module.exports = {
+    devtool: 'cheap-module-source-map',
     entry: {
-        popup: path.join(__dirname, "src/popup/popup.tsx"),
-        content: path.join(__dirname, "src/content/content.tsx"),
-        background: path.join(__dirname, "src/background/background.ts")
+        popup: path.join(__dirname, "src/popup/popup.jsx"),
+        content: path.join(__dirname, "src/content/content.jsx"),
+        background: path.join(__dirname, "src/background/background.ts"),
     },
     output: {path: path.join(__dirname, "dist"), filename: "[name].js"},
+    stats: {
+        warningsFilter: [
+            './node_modules'
+        ]
+    },
     module: {
-        rules: [
-            {
-                test: /\.(js(x)?)$/,
-                use: "babel-loader",
-                exclude: /node_modules/,
+        rules: [{
+            test: /\.(js|jsx)$/,
+            exclude: /node_modules/,
+            resolve: {
+                extensions: [".js", ".jsx"]
             },
-            {
-                test: /\.css$/,
-                use: ["style-loader", "css-loader"],
-                exclude: /\.module\.css$/,
+            use: {
+                loader: "babel-loader"
+            }
+        }, {
+            test: /\.(ts|tsx)$/,
+            exclude: /node_modules/,
+            resolve: {
+                extensions: [".ts", ".tsx"]
             },
+            use: {
+                loader: "ts-loader"
+            }
+        },
             {
-                test: /\.ts(x)?$/,
-                loader: "ts-loader",
-                exclude: /node_modules/,
-            },
-            {
-                test: /\.css$/,
+                test: /\.(css)?$/,
                 use: [
-                    "style-loader",
-                    {
-                        loader: "css-loader",
-                        options: {
-                            importLoaders: 1,
-                            modules: true,
-                        },
-                    },
-                ],
-                include: /\.module\.css$/,
-            },
-            {
+                    {loader: "style-loader"},
+                    {loader: "css-loader"}
+                ]
+            }, {
                 test: /\.svg$/,
                 use: "file-loader",
-            },
-            {
+            }, {
                 test: /\.png$/,
                 use: [
                     {
@@ -55,16 +55,7 @@ const config = {
                     },
                 ],
             },
-        ],
-    },
-    resolve: {
-        extensions: [".js", ".jsx", ".ts", ".tsx"],
-        alias: {
-            "react-dom": "@hot-loader/react-dom",
-        },
-    },
-    devServer: {
-        contentBase: "./dist",
+        ]
     },
     plugins: [
         new CopyPlugin({
@@ -74,9 +65,7 @@ const config = {
             patterns: [{from: "src/popup/popup.html", to: "."}],
         }),
         new CopyPlugin({
-            patterns: [{from: "src/manifest.json", to: "."}],
-        }),
-    ],
-};
-
-module.exports = config;
+            patterns: [{from: "public/manifest.json", to: "."}],
+        })
+    ]
+}
