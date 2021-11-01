@@ -12,8 +12,8 @@ function ListItemContainer(props) {
     console.log(listItems)
 
     const displayBoxes = listItems.map((linkObj, index) => {
-        console.log(linkObj)
         return <ListItem
+            key={linkObj["url"]}
             className="m-2"
             title={linkObj["title"]}
             url={linkObj["url"]}
