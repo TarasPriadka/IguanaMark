@@ -27,7 +27,7 @@
     transform: scale(1);
 }
 
-#iguana-root .noselect {
+.noselect {
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
     -webkit-user-drag: none; /* Any MacOS? */
@@ -141,6 +141,11 @@ input.form-control {
     background: transparent;
 }
 
+.sleek-input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: whitesmoke;
+    opacity: 1; /* Firefox */
+}
+
 .tag-creation {
     color: white;
     width: 7em;
@@ -152,4 +157,41 @@ input.form-control {
     border-bottom: 1px solid black;
     text-underline: black;
     overflow-x: hidden;
+}
+
+
+/* Checkbox */
+.checkbox-wrapper {
+    background-color: whitesmoke;
+    border-color: blue;
+    border-left: solid;
+    border-left-color: #51B848;
+    border-left-width: 10px;
+    padding-left: 5px;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+input[type="checkbox"] + span {
+    display: inline-block;
+    position: relative;
+    top: -1px;
+    width: 1em;
+    height: 1em;
+    margin: -1px 0 0 0;
+    vertical-align: middle;
+    /*background: white;*/
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+input[type="checkbox"]:checked + span {
+    background: #51B848;
+    border: 1px solid #eee;
+}
+
+input[type="checkbox"] + span {
+    margin-right: 6px;
 }

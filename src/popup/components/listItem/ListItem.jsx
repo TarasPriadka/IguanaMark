@@ -32,7 +32,26 @@ function ListItem(props) {
         setListItems(newList);
     }
 
-    console.log(props)
+    const followLink = () => {
+        let newValue = listItems[props.index]
+        const newList = replaceItemAtIndex(listItems, props.index, {
+            ...newValue,
+            tags: newValue.tags.map((tag) => {
+                if (tag === "Unread") {
+                    return "Read";
+                } else {
+                    return tag;
+                }
+            })
+        });
+
+        chrome.storage.local.set({
+            listItems: newList
+        }, () => {
+            const newWindow = window.open(url, '_blank', 'noopener, noreferrer')
+            if (newWindow) newWindow.opener = null;
+        });
+    }
 
     /**
      * React render
@@ -60,8 +79,9 @@ function ListItem(props) {
                             {" "}
                             {url !== "" && mouseIn ?
                                 <span>
-                                     - <a href={props.url}
-                                          className="font-weight-light text-secondary">{url.hostname}</a></span> :
+                                     - <a href={props.url} onClick={followLink}
+                                          className="font-weight-light text-secondary"
+                                >{url.hostname}</a></span> :
                                 <span></span>
                             }
 
