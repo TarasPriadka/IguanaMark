@@ -2,7 +2,7 @@ import React from "react";
 import "../App.css";
 import {listItemsAtom, replaceItemAtIndex} from "../atoms";
 import {useRecoilState} from "recoil";
-import {Tag, PlusTag} from "./Tag";
+import {PlusTag, Tag} from "./Tag";
 
 
 function TagBar(props) {
@@ -28,15 +28,13 @@ function TagBar(props) {
     }
 
     let badges = listItems[props.index]['tags'].map(tagName => {
-        return <>
-            <Tag name={tagName} removeTag={removeTag}/>{' '}
-        </>;
+        return <span key={tagName}><Tag name={tagName} removeTag={removeTag}/>{' '}</span>;
     });
 
 
     return <div className="tag-bar">
         {badges}
-        <PlusTag addTag={addTag}/>
+        <PlusTag key="plus" addTag={addTag}/>
     </div>
 }
 
