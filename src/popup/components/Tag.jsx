@@ -1,14 +1,14 @@
 import React, {useEffect, useState} from "react";
 import "../App.css";
 import {Badge} from "react-bootstrap";
-import {tagColors} from "../atoms";
+import {tagColorsAtom} from "../atoms";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {GrFormClose} from "react-icons/all";
 import {IconContext} from "react-icons";
 import OutsideHandler from "./ClickOutside"
 
 export function Tag(props) {
-    const [colors, setColors] = useRecoilState(tagColors)
+    const [colors, setColors] = useRecoilState(tagColorsAtom)
     const [myColor, setMyColor] = useState(colors["Default"]);
     const [mouseIn, setMouseIn] = useState(false);
     const [closeColor, setCloseColor] = useState("white")
@@ -65,7 +65,7 @@ export function Tag(props) {
 
 export function PlusTag(props) {
 
-    const colors = useRecoilValue(tagColors)
+    const colors = useRecoilValue(tagColorsAtom)
     const [creatingTag, setCreatingTag] = useState(false);
     const [newTagName, setNewTagName] = useState("");
 
@@ -84,6 +84,10 @@ export function PlusTag(props) {
         {creatingTag ?
             <OutsideHandler
                 onOutside={() => {
+                    if (newTagName !== "") {
+                        props.addTag(newTagName);
+                    }
+
                     setCreatingTag(false);
                     setNewTagName("");
                 }}

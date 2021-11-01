@@ -1,13 +1,12 @@
+/**
+ * File with atoms(states) which are tracked globally in the react application.
+ */
+
 import {atom} from "recoil";
 
 export function replaceItemAtIndex(arr, index, newValue) {
     return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
-
-export const bookmarkExistsAtom = atom({
-    key: "bookmarkExists",
-    default: false
-})
 
 export const quickMarkVisibleAtom = atom({
     key: "quickMarkVisible",
@@ -17,11 +16,6 @@ export const quickMarkVisibleAtom = atom({
 export const searchTextAtom = atom({
     key: "searchText",
     default: ""
-})
-
-export const showModalAtom = atom({
-    key: "showModal",
-    default: false
 })
 
 export const searchSubmitAtom = atom({
@@ -55,7 +49,7 @@ export const listItemsAtom = atom({
     ]
 })
 
-export const tagColors = atom({
+export const tagColorsAtom = atom({
     key: "tagColors",
     default: {
         "Unread": "#808080",
