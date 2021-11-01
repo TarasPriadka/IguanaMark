@@ -8,23 +8,25 @@
     "build": "webpack --mode production"
   },
   "devDependencies": {
+    "@testdeck/mocha": "^0.1.2",
+    "@types/chai": "^4.2.21",
+    "@types/mocha": "^9.0.0",
     "babel-loader": "^8.2.2",
     "chai": "^4.3.4",
     "css-loader": "^6.4.0",
     "html-webpack-plugin": "^5.4.0",
     "mocha": "^9.1.1",
     "style-loader": "^3.3.0",
-    "@testdeck/mocha": "^0.1.2",
-    "@types/chai": "^4.2.21",
-    "@types/mocha": "^9.0.0",
     "webpack": "^5.59.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.3.1"
   },
   "dependencies": {
     "@babel/core": "^7.15.8",
+    "@babel/plugin-transform-runtime": "^7.16.0",
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-react": "^7.14.5",
+    "@stdlib/nlp-porter-stemmer": "^0.0.6",
     "@types/chrome": "^0.0.159",
     "bootstrap": "^5.1.3",
     "copy-webpack-plugin": "^9.0.1",
@@ -35,8 +37,8 @@
     "react-draggable": "^4.4.4",
     "react-icons": "^4.3.1",
     "recoil": "^0.4.1",
-    "@stdlib/nlp-porter-stemmer": "^0.0.6",
     "regenerator-runtime": "^0.13.9",
+    "regenerator-transform": "^0.14.5",
     "ts-loader": "^9.2.6",
     "url-loader": "^4.1.1"
   }
