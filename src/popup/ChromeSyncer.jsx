@@ -39,14 +39,15 @@ function ChromeSyncer() {
      * @returns list of folded items
      */
     function atomFolder(atoms) {
-        return atoms.map((atom) => {
+        let obj = {}
+        atoms.map((atom) => {
             let [getter, setter] = useRecoilState(atom);
-            return {
-                name: atom.key,
+            obj[atom.key] = {
                 getter: getter,
                 setter: setter
             }
         })
+        return obj;
     }
 
     //folded atoms which will be watched and synced
@@ -57,7 +58,7 @@ function ChromeSyncer() {
     ]);
 
     //recoil values which will be watched
-    let atomGetters = atoms.map((atom) => {
+    let atomGetters = Object.values(atoms).map((atom) => {
         return atom['getter']
     })
     atomGetters.push(appLoaded);
@@ -66,15 +67,13 @@ function ChromeSyncer() {
      * Fetches data from chrome and updates atoms with the fetched data.
      */
     function fetchChrome() {
-        let atomNames = atoms.map((atom) => {
-            return atom['name'];
-        })
+        let atomNames = Object.keys(atoms);
 
         chrome.storage.local.get(atomNames, function (result) {
             console.log("Fetching data from Chrome Storage.");
-            Object.keys(result).forEach((atomName) => {
-                atoms.filter((a) => a['name'] === atomName)[0]["setter"](result[atomName]);
-            })
+            for (const atomName in result) {
+                atoms[atomName]["setter"](result[atomName]);
+            }
         });
     }
 
@@ -84,9 +83,9 @@ function ChromeSyncer() {
     function syncChrome() {
         console.log("Syncing data to Chrome Storage.")
         let obj = {}
-        atoms.forEach((atom) => {
-            obj[atom['name']] = atom['getter'];
-        });
+        for (const atomName in atoms) {
+            obj[atomName] = atoms[atomName]['getter'];
+        }
         chrome.storage.local.set(obj);
     }
 
