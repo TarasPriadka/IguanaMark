@@ -43,7 +43,7 @@ function ChromeSyncer() {
         atoms.map((atom) => {
             let [getter, setter] = useRecoilState(atom);
             obj[atom.key] = {
-                getter: getter,
+                value: getter,
                 setter: setter
             }
         })
@@ -59,7 +59,7 @@ function ChromeSyncer() {
 
     //recoil values which will be watched
     let atomGetters = Object.values(atoms).map((atom) => {
-        return atom['getter']
+        return atom['value']
     })
     atomGetters.push(appLoaded);
 
@@ -84,7 +84,7 @@ function ChromeSyncer() {
         console.log("Syncing data to Chrome Storage.")
         let obj = {}
         for (const atomName in atoms) {
-            obj[atomName] = atoms[atomName]['getter'];
+            obj[atomName] = atoms[atomName]['value'];
         }
         chrome.storage.local.set(obj);
     }
