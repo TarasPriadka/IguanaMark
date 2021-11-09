@@ -154,11 +154,15 @@ input.form-control {
 .title-input {
     border-bottom: 1px solid #aaa;
     width: 8em;
-    border-bottom: 1px solid black;
-    text-underline: black;
+    border-bottom: none;
+    text-underline: none;
     overflow-x: hidden;
 }
 
+.title-input::placeholder {
+    color: grey;
+    opacity: 1;
+}
 
 /* Checkbox */
 .checkbox-wrapper {

@@ -29,7 +29,7 @@ function ListItemTitle(props) {
                     setNewTitle("");
                 }}
             >
-                <span className="title-input sleek-input">
+                <span className="sleek-input title-input">
                     <form
                         onSubmit={(event) => {
                             props.updateTitle(newTitle);
@@ -39,7 +39,7 @@ function ListItemTitle(props) {
                         }}
                     >
                         <input
-                            className="sleek-input"
+                            className="sleek-input title-input"
                             onChange={(e) => {
                                 setNewTitle(e.target.value)
                             }}
