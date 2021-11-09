@@ -63,7 +63,11 @@ function ScreenButton() {
                         if (marked) {
                             removeCurrentPage(window.location.href);
                         } else {
-                            saveCurrentPage(document.title, window.location.href);
+                            saveCurrentPage(
+                                window.location.href,
+                                document.title,
+                                document.getElementsByTagName('body')[0].innerText
+                            );
                         }
                     isDragging = false;
                 }}>

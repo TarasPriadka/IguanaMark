@@ -19,11 +19,12 @@ function sendMessage(message, callback) {
  * @param url URL of the page to save.
  * @param tab tabId from which the request to bookmark is sent. Optional.
  */
-export async function saveCurrentPage(title, url, tab) {
+export async function saveCurrentPage(url, title, desc, tab) {
     return sendMessage({
         action: "save-bookmark",
-        title: title,
         url: url,
+        title: title,
+        desc: desc,
         tab: tab
     })
 }

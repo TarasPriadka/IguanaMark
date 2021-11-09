@@ -26,12 +26,14 @@ function ListItemForm(props) {
 
     const handleSubmit = () => {
         console.log('submit');
+        let tags = tagger.tagPageRaw(url, title, desc)
+        tags.add('Unread')
         setListItems(curItems => [
             {
                 "title": title,
                 "url": url,
                 "desc": desc,
-                "tags": ["Unread"].concat(Array.from(tagger.tagPageRaw(url, title, desc)))
+                "tags": Array.from(tags)
             }, ...curItems
         ])
         setIguanaClicked(false);
