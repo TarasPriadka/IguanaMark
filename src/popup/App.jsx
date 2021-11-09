@@ -8,6 +8,7 @@ import {iguanaClickedAtom, quickMarkVisibleAtom} from "./atoms.js";
 
 import {useRecoilState, useRecoilValue} from "recoil";
 import ListItemForm from "./components/ListItemCreationForm.jsx";
+import {AiFillPlusSquare} from "react-icons/all";
 
 
 function App() {
@@ -23,13 +24,18 @@ function App() {
                 <ListItemContainer/>
             </div>
         </div>
-        <div className={"checkbox-wrapper noselect pl-3"} onClick={() => {
-            setQuickMarkVisible(!quickMarkVisible);
-        }}>
-                    <input type="checkbox" checked={quickMarkVisible}/>
-                    <span className="animated"/>
-                    Quick Mark Button
-                </div>
+        <div className="checkbox-wrapper noselect">
+            <div className="col checkbox-col  pl-3 float-start" onClick={() => {
+                setQuickMarkVisible(!quickMarkVisible);
+            }}>
+                <input type="checkbox" checked={quickMarkVisible}/>
+                <span className="animated"/>
+                Quick Mark Button
+            </div>
+            <div className="col">
+                <AiFillPlusSquare className="add-button"/>
+            </div>
+        </div>
     </>
 }
 

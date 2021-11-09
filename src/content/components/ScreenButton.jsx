@@ -74,8 +74,6 @@ function ScreenButton() {
             </button>
         </div>
     </Draggable>
-
-
 }
 
 export default ScreenButton;
