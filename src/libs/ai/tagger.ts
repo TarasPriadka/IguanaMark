@@ -19,6 +19,9 @@ export class Page {
      * @param tags (optional) tags.
      */
     constructor(url: String, title: String, desc: String, tags = new Set<String>()) {
+        if (desc == null) {
+            desc = '';
+        }
         this.url = url;
         this.title = title;
         this.desc = desc;
@@ -262,30 +265,40 @@ class ManyTagger extends Tagger {
     }
 }
 
-let savedPages: Page[] = []; // TODO: storage sync
-export let tagger: Tagger = new ManyTagger([
-    new DomainTagger(),
-    new NGramSimilarityTagger(),
-]);
 
-/**
- * Tag and save new page
- *
- * @param page page to tag and save
- */
-function savePage(page: Page) {
-    page.tags = tagger.findTags(page, savedPages);
-    savedPages.push(page)
-    // TODO save pages
+export class PageTagger {
+
+    private tagger: Tagger = new ManyTagger([
+        new DomainTagger(),
+        new NGramSimilarityTagger(),
+    ]);
+    private readonly savedPages: Page[];
+
+    constructor(savedPages: Page[]) {
+        this.savedPages = savedPages;
+    }
+
+    /**
+     * Tag and save new page
+     *
+     * @param page page to tag and save
+     */
+    savePage(page: Page): Set<String> {
+        page.tags = this.tagger.findTags(page, this.savedPages);
+        this.savedPages.push(page);
+        // TODO save pages
+        return page.tags;
+    }
+
+    /**
+     * Save new page from raw info
+     *
+     * @param url url of new page
+     * @param title title of new page
+     * @param desc description (content) of new page
+     */
+    tagPageRaw(url: String, title: String, desc: String): Set<String> {
+        return this.savePage(new Page(url, title, desc))
+    }
 }
 
-/**
- * Save new page from raw info
- *
- * @param url url of new page
- * @param title title of new page
- * @param desc description (content) of new page
- */
-function savePageRaw(url: String, title: String, desc: String) {
-    savePage(new Page(url, title, desc))
-}

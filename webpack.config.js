@@ -16,25 +16,17 @@ module.exports = {
         ]
     },
     module: {
-        rules: [{
-            test: /\.(js|jsx)$/,
-            exclude: /node_modules/,
-            resolve: {
-                extensions: [".js", ".jsx"]
+        rules: [
+            {
+                test: /\.(js|jsx|ts)$/,
+                exclude: /node_modules/,
+                resolve: {
+                    extensions: [".js", ".jsx", ".ts"]
+                },
+                use: {
+                    loader: "babel-loader"
+                }
             },
-            use: {
-                loader: "babel-loader"
-            }
-        }, {
-            test: /\.(ts|tsx)$/,
-            exclude: /node_modules/,
-            resolve: {
-                extensions: [".ts", ".tsx"]
-            },
-            use: {
-                loader: "ts-loader"
-            }
-        },
             {
                 test: /\.(css)?$/,
                 use: [

@@ -1,22 +1,39 @@
 import React, {useState} from "react";
-import "../App.css";
 import {Button, Modal} from "react-bootstrap";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import {Page, PageTagger} from "/src/libs/ai/tagger";
+import "../App.css";
 import {iguanaClickedAtom, listItemsAtom} from "../atoms";
-import {useSetRecoilState} from "recoil";
 
 function ListItemForm(props) {
+    const listItems = useRecoilValue(listItemsAtom)
     const setListItems = useSetRecoilState(listItemsAtom);
     const setIguanaClicked = useSetRecoilState(iguanaClickedAtom);
     const [title, setTitle] = useState("");
+    const [desc, setDesc] = useState("");
     const [url, setUrl] = useState("");
 
+    const tagger = new PageTagger(
+        listItems.map(
+            a => new Page(
+                a.url,
+                a.title,
+                a.desc,
+                new Set(a.tags)
+            )
+        )
+    );
 
     const handleSubmit = () => {
+        console.log('submit');
+        let tags = tagger.tagPageRaw(url, title, desc)
+        tags.add('Unread')
         setListItems(curItems => [
             {
                 "title": title,
                 "url": url,
-                "tags": ["Unread"]
+                "desc": desc,
+                "tags": Array.from(tags)
             }, ...curItems
         ])
         setIguanaClicked(false);
@@ -37,6 +54,13 @@ function ListItemForm(props) {
                     type="text"
                     value={url}
                     onChange={event => setUrl(event.target.value)}
+                    className="m-1"
+                />
+                <input
+                    placeholder="Description"
+                    type="text"
+                    value={desc}
+                    onChange={event => setDesc(event.target.value)}
                     className="m-1"
                 />
                 <Button variant="primary" className="m-1" onClick={handleSubmit}>Save changes</Button>

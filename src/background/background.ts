@@ -1,6 +1,7 @@
 // *----*----*----* Globals *----*----*----*
 
 import {BookmarkManager} from "../libs/bookmarks/bookmarkManager";
+import {Page, PageTagger} from "../libs/ai/tagger";
 
 let bookmarkManager = new BookmarkManager()
 
@@ -85,6 +86,31 @@ function notifyQuickMarkVisible(tabId: number) {
 //     notifyQuickMarkVisible(activeInfo.tabId)
 // })
 
+function tagAndSave(url: String, title: String, desc: String) {
+    chrome.storage.local.get("listItems", (listItems) => {
+        console.log(listItems)
+        const tagger = new PageTagger(
+            listItems["listItems"].map(
+                (a: {[p: string]: any}) => new Page(
+                    a.url,
+                    a.title,
+                    a.desc,
+                    new Set(a.tags)
+                )
+            )
+        );
+        let tags = tagger.tagPageRaw(url, title, desc)
+        tags.add('Unread')
+        let newItems = [{
+            "url": url,
+            "title": title,
+            "desc": desc,
+            "tags": Array.from(tags)
+        }, ...listItems["listItems"]];
+        chrome.storage.local.set({listItems: newItems});
+    })
+}
+
 /**
  * Listeners for background API actions
  */
@@ -96,16 +122,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 sendResponse(bookmarkManager.getByURL(request.url).length > 0)
                 break
             case "save-bookmark":
-                console.log("Adding url: ", request)
-                chrome.storage.local.get("listItems", (listItems) => {
-                    console.log(listItems)
-                    let newItems = [{
-                        "title": request.title,
-                        "url": request.url,
-                        "tags": ["Unread"]
-                    }, ...listItems["listItems"]];
-                    chrome.storage.local.set({listItems: newItems});
-                })
+                console.log("Adding url: ", request);
+                tagAndSave(request.url, request.title, request.desc);
                 notifyBookmarkUpdate(request.url, true);
                 break
             case "remove-bookmark":

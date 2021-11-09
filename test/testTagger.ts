@@ -1,4 +1,4 @@
-import {Page, DomainTagger, NGramSimilarityTagger, tagger} from "../src/libs/ai/tagger";
+import {Page, DomainTagger, NGramSimilarityTagger, PageTagger} from "../src/libs/ai/tagger";
 import {assert, expect} from "chai";
 
 describe('Tagger Tests', () => {
@@ -76,7 +76,7 @@ describe('Tagger Tests', () => {
         )
 
         let actualTags = ['bad search', 'good search']
-        let predictedTags = Array.from(tagger.findTags(page2, [page0, page1]));
+        let predictedTags = Array.from(new PageTagger([page0, page1]).savePage(page2));
 
         expect(actualTags).to.have.members(predictedTags)
     });
