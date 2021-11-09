@@ -26,6 +26,7 @@
     "@babel/plugin-transform-runtime": "^7.16.0",
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-react": "^7.14.5",
+    "@babel/preset-typescript": "^7.14.5",
     "@stdlib/nlp-porter-stemmer": "^0.0.6",
     "@types/chrome": "^0.0.159",
     "bootstrap": "^5.1.3",
