@@ -154,20 +154,35 @@ input.form-control {
 .title-input {
     border-bottom: 1px solid #aaa;
     width: 8em;
-    border-bottom: 1px solid black;
-    text-underline: black;
+    border-bottom: none;
+    text-underline: none;
     overflow-x: hidden;
 }
 
+.title-input::placeholder {
+    color: grey;
+    opacity: 1;
+}
 
 /* Checkbox */
 .checkbox-wrapper {
+    display: flex;
     background-color: whitesmoke;
     border-color: blue;
     border-left: solid;
     border-left-color: #51B848;
     border-left-width: 10px;
     padding-left: 5px;
+    align-content: center;
+    margin-right: 5px;
+}
+
+.checkbox-col {
+    justify-content: left;
+}
+
+.button-col {
+    justify-content: right;
 }
 
 input[type="checkbox"] {
@@ -194,4 +209,16 @@ input[type="checkbox"]:checked + span {
 
 input[type="checkbox"] + span {
     margin-right: 6px;
+}
+
+.add-button {
+    width: 25px;
+    height: 25px;
+    float: right;
+    color: #51B848;
+    cursor: pointer;
+}
+
+.add-button:hover {
+    transform: scale(1.05);
 }

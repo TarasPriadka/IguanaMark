@@ -15,14 +15,35 @@
     },
     "default_popup": "popup.html"
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "permissions": [
     "scripting",
     "bookmarks",
     "storage",
     "tabs"
   ],
-  "web_accessible_resources": [{
-    "resources": ["data/*.json", "content/*"],
-    "matches": ["http://*/*", "https://*/*"]
-  }]
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*/*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "data/*.json",
+        "content/*"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ]
 }

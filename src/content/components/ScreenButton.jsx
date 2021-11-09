@@ -1,137 +1,79 @@
 import Draggable from 'react-draggable';
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import "./ScreenButton.css";
-import {Button} from "react-bootstrap";
+import {removeCurrentPage, saveCurrentPage} from "../../libs/ui";
 
+import regeneratorRuntime from "regenerator-runtime";
 
-function ScreenButton(props) {
-    this.unmarkedURL = chrome.runtime.getURL('content/unmarked.svg');
-    this.markedURL = chrome.runtime.getURL('content/marked.svg');
+/**
+ * On-screen quick-mark button for creating bookmarks quickly
+ */
+function ScreenButton() {
 
-    const [bookmarkExists, setBookmarkExists] = useState(false);
+    let unmarkedURL = chrome.runtime.getURL('content/unmarked.svg');
+    let markedURL = chrome.runtime.getURL('content/marked.svg');
+    const [marked, setMarked] = useState(false);
+    const [quickMarkVisible, setQuickMarkVisible] = useState(true);
 
-    return <Draggable>
-        <div className="buttonContainer" hidden={!this.state.quickMarkVisible}>
-            <Button
-                className={`quickmarkButton animated ${this.state.bookmarkExists ? "activated" : ""}`}
+    useEffect(() => {
+        chrome.storage.local.get(["listItems"], (fetched) => {
+            for (const listItem of fetched['listItems']) {
+                if (listItem.url === window.location.href) {
+                    setMarked(true);
+                    break;
+                }
+            }
+        });
+        addListeners();
+    }, []);
+
+    /**
+     * Add listeners for outside events that change content state
+     */
+    const addListeners = () => {
+        chrome.runtime.onMessage.addListener(request => {
+            try {
+                switch (request.action) {
+                    case 'broadcast-update':
+                        if (request.url == window.location.href)
+                            setMarked(request.bookmarkExists);
+                        break;
+
+                    case 'quickMarkVisible':
+                        setQuickMarkVisible(request.quickMarkVisible)
+                        break;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
+    }
+
+    let isDragging = false;
+
+    return <Draggable onDrag={() => {
+        isDragging = true
+    }}>
+        <div className="buttonContainer" hidden={false}>
+            <button
+                className={`quickmarkButton buttonContainer animated ${marked ? "activated" : ""}`}
                 id="saveUrl"
                 onClick={() => {
-                    setBookmarkExists(!bookmarkExists)
-                }}
-            >
+                    if (!isDragging)
+                        if (marked) {
+                            removeCurrentPage(window.location.href);
+                        } else {
+                            saveCurrentPage(document.title, window.location.href);
+                        }
+                    isDragging = false;
+                }}>
                 <img className="mark noselect"
-                     src={bookmarkExists ? this.markedURL : this.unmarkedURL}
-                     alt={bookmarkExists ? '★' : '☆'}
+                     src={marked ? markedURL : unmarkedURL}
+                     alt={marked ? '★' : '☆'}
                 />
-            </Button>
+            </button>
         </div>
     </Draggable>
 }
-
-// /**
-//  * On-screen quick-mark button for creating bookmarks quickly
-//  */
-// class ScreenButton extends React.Component<IProps, IState> {
-//
-//     private unmarkedURL: string;
-//     private markedURL: string;
-//
-//     /**
-//      * constructor
-//      * @param props properties for the component. None now. See IProps
-//      */
-//     constructor(props: any) {
-//         super(props);
-//
-//         this.state = {
-//             bookmarkExists: false,
-//             quickMarkVisible: false
-//         }
-//
-//         this.unmarkedURL = chrome.runtime.getURL('content/unmarked.svg');
-//         this.markedURL = chrome.runtime.getURL('content/marked.svg');
-//
-//         // have to initialize the state this way because checkBookmark is async
-//         getBookmarkExists(window.location.href, this.setBookmarkExists);
-//
-//         chrome.storage.sync.get('quickMarkVisible', r => this.setState({
-//             quickMarkVisible: r['quickMarkVisible']
-//         }));
-//
-//         this.addListeners();
-//     }
-//
-//     /**
-//      * Add listeners for outside events that change content state
-//      */
-//     private addListeners = () => {
-//         chrome.runtime.onMessage.addListener(request => {
-//             try {
-//                 switch (request.action) {
-//
-//                     case 'broadcast-update':
-//                         if (request.url == window.location.href)
-//                             this.setBookmarkExists(request.bookmarkExists);
-//                         break;
-//
-//                     case 'quickMarkVisible':
-//                         this.setState({
-//                             quickMarkVisible: request.quickMarkVisible
-//                         });
-//                         break;
-//
-//                 }
-//             } catch (e) {
-//                 console.error(e);
-//             }
-//         });
-//     }
-//
-//     /**
-//      * React render method
-//      */
-//     render() {
-//         /**
-//          * For detecting whether the click event is an actual click or from dragging the button.
-//          */
-//         let isDragging = false;
-//
-//         return (
-//             <Draggable onDrag={() => {
-//                 isDragging = true
-//             }}>
-//                 <div className="buttonContainer" hidden={!this.state.quickMarkVisible}>
-//                     <button
-//                         className={`quickmarkButton animated ${this.state.bookmarkExists ? "activated" : ""}`}
-//                         id="saveUrl"
-//                         onClick={() => {
-//                             if (!isDragging)
-//                                 if (this.state.bookmarkExists) {
-//                                     removeCurrentPage(window.location.href);
-//                                 } else {
-//                                     saveCurrentPage(document.title, window.location.href);
-//                                 }
-//                             isDragging = false;
-//                         }}>
-//                         <img className="mark noselect"
-//                             src={this.state.bookmarkExists ? this.markedURL : this.unmarkedURL}
-//                             alt={this.state.bookmarkExists ? '★' : '☆'}
-//                         />
-//                     </button>
-//                 </div>
-//             </Draggable>
-//         );
-//     }
-//
-//     /**
-//      * Set bookmark existence state
-//      * @param exists whether bookmark now exists or not
-//      */
-//     private setBookmarkExists = (exists: boolean) => {
-//         this.setState({
-//             bookmarkExists: exists
-//         });
-//     }
-// }
 
 export default ScreenButton;

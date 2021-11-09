@@ -1,7 +1,6 @@
 // *----*----*----* Globals *----*----*----*
 
 import {BookmarkManager} from "../libs/bookmarks/bookmarkManager";
-import {SmartCreateInfo} from "../libs/bookmarks/smartBookmark";
 
 let bookmarkManager = new BookmarkManager()
 
@@ -68,23 +67,23 @@ function notifyQuickMarkVisible(tabId: number) {
     })
 }
 
-/**
- * Listeners for created and removed bookmarks that notify the content pages
- */
-bookmarkManager.onCreated.addListener(url => {
-    notifyBookmarkUpdate(url, true)
-})
-bookmarkManager.onRemoved.addListener(url => {
-    notifyBookmarkUpdate(url, false)
-})
-
-/**
- * Propagate updates during tab switches
- */
-chrome.tabs.onActivated.addListener((activeInfo) => {
-    notifyBookmarkUpdateCurrent()
-    notifyQuickMarkVisible(activeInfo.tabId)
-})
+// /**
+//  * Listeners for created and removed bookmarks that notify the content pages
+//  */
+// bookmarkManager.onCreated.addListener(url => {
+//     notifyBookmarkUpdate(url, true)
+// })
+// bookmarkManager.onRemoved.addListener(url => {
+//     notifyBookmarkUpdate(url, false)
+// })
+//
+// /**
+//  * Propagate updates during tab switches
+//  */
+// chrome.tabs.onActivated.addListener((activeInfo) => {
+//     notifyBookmarkUpdateCurrent()
+//     notifyQuickMarkVisible(activeInfo.tabId)
+// })
 
 /**
  * Listeners for background API actions
@@ -97,13 +96,26 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 sendResponse(bookmarkManager.getByURL(request.url).length > 0)
                 break
             case "save-bookmark":
-                saveBookmark({
-                    url: request.url,
-                    title: request.title
+                console.log("Adding url: ", request)
+                chrome.storage.local.get("listItems", (listItems) => {
+                    console.log(listItems)
+                    let newItems = [{
+                        "title": request.title,
+                        "url": request.url,
+                        "tags": ["Unread"]
+                    }, ...listItems["listItems"]];
+                    chrome.storage.local.set({listItems: newItems});
                 })
+                notifyBookmarkUpdate(request.url, true);
                 break
             case "remove-bookmark":
-                bookmarkManager.removeAll(bookmarkManager.getByURL(request.url))
+                console.log("Removing url: ", request)
+                chrome.storage.local.get("listItems", (query) => {
+                    let newItems = query.listItems.filter((item: { url: any; }) => item.url !== request.url);
+                    console.log(query.listItems, newItems)
+                    chrome.storage.local.set({listItems: newItems});
+                })
+                notifyBookmarkUpdate(request.url, false);
                 break
         }
     } catch (e) {
@@ -111,25 +123,25 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
 });
 
-/**
- * Finds a saved bookmark or the proper category for the new bookmark, and saves it there.
- *
- * @param createInfo information about the new bookmark
- */
-function saveBookmark(createInfo: SmartCreateInfo) {
-    let allBookmarks = bookmarkManager.getAllBookmarks();
-    let allURLs = allBookmarks.map(b => b.url)
-
-    let category = "Unread";
-    bookmarkManager.createInFolder(createInfo, [category]).then()
-
-    // if (closestURLs.length > 0) {
-    //     let bookmark = bookmarkManager.getByURL(closestURLs[0]);
-    //     if (bookmark.length > 0) {
-    //         createInfo.parentId = bookmark[0].parentId
-    //         bookmarkManager.create(createInfo)
-    //     }
-    // } else {
-    //
-    // }
-}
+// /**
+//  * Finds a saved bookmark or the proper category for the new bookmark, and saves it there.
+//  *
+//  * @param createInfo information about the new bookmark
+//  */
+// function saveBookmark(createInfo: SmartCreateInfo) {
+//     let allBookmarks = bookmarkManager.getAllBookmarks();
+//     let allURLs = allBookmarks.map(b => b.url)
+//
+//     let category = "Unread";
+//     bookmarkManager.createInFolder(createInfo, [category]).then()
+//
+//     // if (closestURLs.length > 0) {
+//     //     let bookmark = bookmarkManager.getByURL(closestURLs[0]);
+//     //     if (bookmark.length > 0) {
+//     //         createInfo.parentId = bookmark[0].parentId
+//     //         bookmarkManager.create(createInfo)
+//     //     }
+//     // } else {
+//     //
+//     // }
+// }
