@@ -22,7 +22,7 @@ function TagBar(props) {
         let newValue = listItems[props.index]
         const newList = replaceItemAtIndex(listItems, props.index, {
             ...newValue,
-            tags: [...newValue.tags, newTagName]
+            tags: [...new Set([...newValue.tags, newTagName])] //make sure the tags are unique
         });
         setListItems(newList);
     }
