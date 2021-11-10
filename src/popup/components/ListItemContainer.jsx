@@ -10,7 +10,7 @@ function ListItemContainer() {
     const listItems = useRecoilValue(listItemsAtom);
     const searchText = useRecoilValue(searchTextAtom);
 
-    const displayBoxes = listItems.filter((linkObj) => {
+    const filter = (linkObj) => {
         if (searchText === "") {
             return true;
         } else {
@@ -24,7 +24,12 @@ function ListItemContainer() {
 
             return inTitle || inTags;
         }
-    }).map((linkObj, index) => {
+    }
+
+    const displayBoxes = listItems.map((linkObj, index) => {
+        if (!filter(linkObj)) {
+            return <></>
+        }
         return <ListItem
             key={linkObj["url"]}
             className="m-2"
