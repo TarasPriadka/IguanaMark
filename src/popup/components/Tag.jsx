@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "react";
 import "../App.css";
 import {Badge} from "react-bootstrap";
-import {tagColorsAtom} from "../atoms";
-import {useRecoilState, useRecoilValue} from "recoil";
+import {searchTextAtom, tagColorsAtom} from "../atoms";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {GrFormClose} from "react-icons/all";
 import {IconContext} from "react-icons";
 import OutsideHandler from "./ClickOutside"
@@ -10,6 +10,7 @@ import OutsideHandler from "./ClickOutside"
 export function Tag(props) {
     const [colors, setColors] = useRecoilState(tagColorsAtom)
     const [myColor, setMyColor] = useState(colors["Default"]);
+    const setSearchText = useSetRecoilState(searchTextAtom);
 
     const randomColor = () => {
         function randomRGB() {
@@ -65,6 +66,10 @@ export function Tag(props) {
                       if (node) {
                           node.style.setProperty("background-color", myColor, "important");
                       }
+                  }}
+
+                  onClick={() => {
+                      setSearchText(props.name)
                   }}
     >
         {props.name}
