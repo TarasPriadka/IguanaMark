@@ -121,8 +121,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             case "quickmark":
                 console.log(request)
                 getCurrentTab().then(tab => {
-                    // @ts-ignore
-                    notifyQuickMarkVisible(tab.id);
+                    notifyQuickMarkVisible(tab.id!);
                 })
                 // sendResponse(bookmarkManager.getByURL(request.url).length > 0)
                 break

@@ -1,42 +1,21 @@
-import React, {useState} from "react";
+import {saveCurrentPage} from "/src/libs/ui";
+import React, {useEffect, useState} from "react";
 import {Button, Modal} from "react-bootstrap";
-import {useRecoilValue, useSetRecoilState} from "recoil";
-import {Page, PageTagger} from "/src/libs/ai/tagger";
+import {useSetRecoilState} from "recoil";
 import "../App.css";
-import {iguanaClickedAtom, listItemsAtom} from "../atoms";
+import {iguanaClickedAtom} from "../atoms";
 
 function ListItemForm() {
-    const listItems = useRecoilValue(listItemsAtom)
-    const setListItems = useSetRecoilState(listItemsAtom);
     const setIguanaClicked = useSetRecoilState(iguanaClickedAtom);
     const [title, setTitle] = useState("");
     const [desc, setDesc] = useState("");
     const [url, setUrl] = useState("");
 
-    const tagger = new PageTagger(
-        listItems.map(
-            a => new Page(
-                a.url,
-                a.title,
-                a.desc,
-                new Set(a.tags)
-            )
-        )
-    );
-
     const handleSubmit = () => {
         console.log('submit');
-        let tags = tagger.tagPageRaw(url, title, desc)
-        tags.add('Unread')
-        setListItems(curItems => [
-            {
-                "title": title,
-                "url": url,
-                "desc": desc,
-                "tags": Array.from(tags)
-            }, ...curItems
-        ])
-        setIguanaClicked(false);
+        saveCurrentPage(url, title, desc).then(() => {
+            setIguanaClicked(false);
+        });
     }
 
     return (

@@ -59,6 +59,7 @@ function ChromeSyncer() {
             }
             setAppLoaded(true);
         });
+
     }
 
     /**
