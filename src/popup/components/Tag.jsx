@@ -44,11 +44,7 @@ export function Tag(props) {
     };
 
     useEffect(() => {
-        console.log(colors)
-        console.log(props.name)
-        console.log(props.name in colors)
         if (!(props.name in colors)) {
-            console.log('Falsey?')
             let newColor = randomColor();
             setColors(currentColors => {
                 let newColors = {

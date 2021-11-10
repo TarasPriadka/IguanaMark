@@ -57,7 +57,6 @@ function ChromeSyncer() {
             for (const atomName in result) {
                 atoms[atomName]["setter"](result[atomName]);
             }
-            console.log('Done Fetching')
         });
 
     }
