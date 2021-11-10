@@ -121,8 +121,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             case "quickmark":
                 console.log(request)
                 getCurrentTab().then(tab => {
-                    // @ts-ignore
-                    notifyQuickMarkVisible(tab.id);
+                    notifyQuickMarkVisible(tab.id!);
                 })
                 // sendResponse(bookmarkManager.getByURL(request.url).length > 0)
                 break
@@ -131,13 +130,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 tagAndSave(request.url, request.title, request.desc);
                 notifyBookmarkUpdate(request.url, true);
                 break
-            case "remove-bookmark":
-                console.log("Removing url: ", request)
-                chrome.storage.local.get("listItems", (query) => {
-                    let newItems = query.listItems.filter((item: { url: any; }) => item.url !== request.url);
-                    console.log(query.listItems, newItems)
-                    chrome.storage.local.set({listItems: newItems});
-                })
+            case "broadcast-remove":
+                // console.log("Removing url: ", request)
+                // chrome.storage.local.get("listItems", (query) => {
+                //     let newItems = query.listItems.filter((item: { url: any; }) => item.url !== request.url);
+                //     console.log(query.listItems, newItems)
+                //     chrome.storage.local.set({listItems: newItems});
+                // })
                 notifyBookmarkUpdate(request.url, false);
                 break
         }

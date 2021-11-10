@@ -33,9 +33,9 @@ export async function saveCurrentPage(url, title, desc, tab) {
  * Removes bookmark with given URL
  * @param url URL of bookmark to remove
  */
-export async function removeCurrentPage(url) {
+export async function broadcastRemove(url) {
     return sendMessage({
-            action: "remove-bookmark",
+            action: "broadcast-remove",
             url: url,
         },
     );
