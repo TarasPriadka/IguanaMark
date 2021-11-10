@@ -72,7 +72,6 @@ function ScreenButton() {
                         }
                     isDragging = false;
                 }}>
-                >
                 <img className="mark noselect"
                      src={marked ? markedURL : unmarkedURL}
                      alt={marked ? '★' : '☆'}
