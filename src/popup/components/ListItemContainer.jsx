@@ -14,9 +14,15 @@ function ListItemContainer() {
         if (searchText === "") {
             return true;
         } else {
-            console.log(linkObj);
+            if (searchText === "Unread" || searchText ==="Read"){
+                return linkObj.tags.includes(searchText); //make sure to find exact match on Unread/Read.
+            }
+
             let searchLower = searchText.toLowerCase();
-            return linkObj.title.toLowerCase().includes(searchLower) || linkObj.tags.some(tag => tag.toLowerCase().includes(searchLower));
+            let inTitle = linkObj.title.toLowerCase().includes(searchLower);
+            let inTags = linkObj.tags.some(tag => tag.toLowerCase().includes(searchLower));
+
+            return inTitle || inTags;
         }
     }).map((linkObj, index) => {
         return <ListItem
