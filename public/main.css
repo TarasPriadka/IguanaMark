@@ -4,14 +4,15 @@
     sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background: transparent;
 }
 
 #iguana-root button {
     border: None;
     box-sizing: border-box;
-    color: black;
-    background-color: #51B848;
-    text-align: center;
+    color: black !important;
+    background-color: #51B848 !important;
+    text-align: center !important;
 }
 
 #iguana-root .animated {
@@ -27,11 +28,11 @@
 }
 
 #iguana-root .noselect {
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -webkit-user-drag: none; /* Any MacOS? */
-    -khtml-user-select: none; /* KDE Konqueror HTML */
-    -moz-user-select: none; /* Old versions of Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+    -webkit-touch-callout: none !important; /* iOS Safari */
+    -webkit-user-select: none !important; /* Safari */
+    -webkit-user-drag: none !important; /* Any MacOS? */
+    -khtml-user-select: none !important; /* KDE Konqueror HTML */
+    -moz-user-select: none !important; /* Old versions of Firefox */
+    -ms-user-select: none !important; /* Internet Explorer/Edge */
+    user-select: none !important; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }

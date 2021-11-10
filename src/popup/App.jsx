@@ -19,7 +19,7 @@ function App() {
         <div className="container-fluid App p-1">
             <AppNavbar/>
             {iguanaClicked ? <ListItemForm/> : <></>}
-            <hr/>
+            <hr className="m-0 mb-2"/>
             <div className="scrollable">
                 <ListItemContainer/>
             </div>
