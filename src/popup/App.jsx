@@ -1,17 +1,18 @@
 import React from "react";
-import {useRecoilState} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {AiFillPlusSquare} from "react-icons/all";
 import "./App.css";
 
-import {quickMarkVisibleAtom} from "./atoms.js";
+import {appLoadedAtom, quickMarkVisibleAtom} from "./atoms.js";
 import AppNavbar from "./components/AppNavbar.jsx";
 import ListItemContainer from "./components/ListItemContainer.jsx";
 
 
 function App() {
     let [quickMarkVisible, setQuickMarkVisible] = useRecoilState(quickMarkVisibleAtom);
+    let appLoaded = useRecoilValue(appLoadedAtom);
 
-    return <>
+    return (!appLoaded ? <></> : <>
         <div className="container-fluid App p-1">
             <AppNavbar/>
             <hr className="m-0 mb-2"/>
@@ -31,7 +32,7 @@ function App() {
                 <AiFillPlusSquare className="add-button"/>
             </div>
         </div>
-    </>
+    </>)
 }
 
 export default App;

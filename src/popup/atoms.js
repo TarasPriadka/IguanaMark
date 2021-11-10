@@ -23,6 +23,11 @@ export const searchSubmitAtom = atom({
     default: false
 })
 
+export const appLoadedAtom = atom({
+    key: "appLoaded",
+    default: false
+})
+
 export const iguanaClickedAtom = atom({
     key: "iguanaClicked",
     default: false
