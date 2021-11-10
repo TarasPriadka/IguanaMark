@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 
-import {listItemsAtom, quickMarkVisibleAtom, tagColorsAtom} from "./atoms";
+import {appLoadedAtom, listItemsAtom, quickMarkVisibleAtom, tagColorsAtom} from "./atoms";
 import {useRecoilState} from "recoil";
 
 
@@ -14,7 +14,7 @@ import {useRecoilState} from "recoil";
 function ChromeSyncer() {
 
     //Flag for application readiness. Needed to make sure that the data is fetched when the popup is opened.
-    let [appLoaded, setAppLoaded] = useState(false);
+    let [appLoaded, setAppLoaded] = useRecoilState(appLoadedAtom);
 
     /**
      * Folds a list of atoms into objects with name, getter and setter for easier later updates.
@@ -35,9 +35,9 @@ function ChromeSyncer() {
 
     //folded atoms which will be watched and synced
     let atoms = atomFolder([
+        tagColorsAtom,
         listItemsAtom,
         quickMarkVisibleAtom,
-        tagColorsAtom
     ]);
 
     //recoil values which will be watched
@@ -57,6 +57,7 @@ function ChromeSyncer() {
             for (const atomName in result) {
                 atoms[atomName]["setter"](result[atomName]);
             }
+            setAppLoaded(true);
         });
     }
 
@@ -77,11 +78,10 @@ function ChromeSyncer() {
      */
     useEffect(() => {
         if (appLoaded) {
-            chrome.runtime.sendMessage({action:"quickmark", quickMarkVisible: atoms.quickMarkVisible.value})
+            chrome.runtime.sendMessage({action: "quickmark", quickMarkVisible: atoms.quickMarkVisible.value})
             syncChrome();
         } else {
             fetchChrome();
-            setAppLoaded(true);
         }
     }, atomGetters);
 
