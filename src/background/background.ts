@@ -59,7 +59,7 @@ function notifyBookmarkUpdateCurrent() {
  * @param tabId current active tab.
  */
 function notifyQuickMarkVisible(tabId: number) {
-    chrome.storage.sync.get(['quickMarkVisible'], (storage) => {
+    chrome.storage.local.get(['quickMarkVisible'], (storage) => {
         chrome.tabs.sendMessage(tabId, {
             action: 'quickMarkVisible',
             quickMarkVisible: storage['quickMarkVisible']
@@ -118,8 +118,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log(request.action)
     try {
         switch (request.action) {
-            case "check-bookmark":
-                sendResponse(bookmarkManager.getByURL(request.url).length > 0)
+            case "quickmark":
+                console.log(request)
+                getCurrentTab().then(tab => {
+                    // @ts-ignore
+                    notifyQuickMarkVisible(tab.id);
+                })
+                // sendResponse(bookmarkManager.getByURL(request.url).length > 0)
                 break
             case "save-bookmark":
                 console.log("Adding url: ", request);

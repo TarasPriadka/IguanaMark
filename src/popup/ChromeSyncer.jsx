@@ -77,6 +77,7 @@ function ChromeSyncer() {
      */
     useEffect(() => {
         if (appLoaded) {
+            chrome.runtime.sendMessage({action:"quickmark", quickMarkVisible: atoms.quickMarkVisible.value})
             syncChrome();
         } else {
             fetchChrome();
