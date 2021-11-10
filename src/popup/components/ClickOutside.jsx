@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, {useEffect, useRef} from "react";
 
 /**
  * Hook that alerts clicks outside of the passed ref

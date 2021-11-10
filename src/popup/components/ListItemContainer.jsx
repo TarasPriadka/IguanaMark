@@ -5,7 +5,7 @@ import {useRecoilValue} from "recoil";
 import {listItemsAtom} from "../atoms";
 
 
-function ListItemContainer(props) {
+function ListItemContainer() {
 
     const listItems = useRecoilValue(listItemsAtom);
 

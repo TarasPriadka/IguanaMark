@@ -10,8 +10,6 @@ import OutsideHandler from "./ClickOutside"
 export function Tag(props) {
     const [colors, setColors] = useRecoilState(tagColorsAtom)
     const [myColor, setMyColor] = useState(colors["Default"]);
-    const [mouseIn, setMouseIn] = useState(false);
-    const [closeColor, setCloseColor] = useState("white")
 
     const randomColor = () => {
         function randomRGB() {
@@ -39,7 +37,7 @@ export function Tag(props) {
         let r = 255, g = 255, b = 255;
         let l = 1;
         while (l < LUM_LOW || l > LUM_HIGH) {
-            [r,g,b] = randomRGB();
+            [r, g, b] = randomRGB();
             l = lum(r, g, b);
         }
         return `rgb(${r}, ${g}, ${b})`
@@ -68,12 +66,6 @@ export function Tag(props) {
                           node.style.setProperty("background-color", myColor, "important");
                       }
                   }}
-                  onMouseEnter={() => {
-                      setMouseIn(true);
-                  }}
-                  onMouseLeave={() => {
-                      setMouseIn(false);
-                  }}
     >
         {props.name}
         <IconContext.Provider
@@ -90,7 +82,12 @@ export function Tag(props) {
     </Badge>
 }
 
-
+/**
+ * Add new Tags button
+ * @param props props including addTag method
+ * @returns {JSX.Element}
+ * @constructor
+ */
 export function PlusTag(props) {
 
     const colors = useRecoilValue(tagColorsAtom)

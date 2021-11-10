@@ -1,11 +1,11 @@
 import React, {useState} from "react";
 import {Button, Modal} from "react-bootstrap";
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import {useRecoilValue, useSetRecoilState} from "recoil";
 import {Page, PageTagger} from "/src/libs/ai/tagger";
 import "../App.css";
 import {iguanaClickedAtom, listItemsAtom} from "../atoms";
 
-function ListItemForm(props) {
+function ListItemForm() {
     const listItems = useRecoilValue(listItemsAtom)
     const setListItems = useSetRecoilState(listItemsAtom);
     const setIguanaClicked = useSetRecoilState(iguanaClickedAtom);

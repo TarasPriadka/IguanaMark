@@ -2,13 +2,12 @@ import React from "react";
 import {useRecoilState, useSetRecoilState} from "recoil";
 import "../App.css";
 import {Container, Form, Navbar} from "react-bootstrap";
-import {iguanaClickedAtom, searchSubmitAtom, searchTextAtom} from "../atoms";
+import {searchSubmitAtom, searchTextAtom} from "../atoms";
 
 
 function AppNavbar() {
     const [searchText, setSearchText] = useRecoilState(searchTextAtom);
     const setSubmit = useSetRecoilState(searchSubmitAtom);
-    const [iguanaClicked, setIguanaClicked] = useRecoilState(iguanaClickedAtom);
 
     return <Container className="p-1">
         <Navbar className="pb-2">

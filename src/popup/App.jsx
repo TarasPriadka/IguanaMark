@@ -1,14 +1,12 @@
 import React from "react";
-
+import {useRecoilState, useRecoilValue} from "recoil";
+import {AiFillPlusSquare} from "react-icons/all";
 import "./App.css";
 
+import {iguanaClickedAtom, quickMarkVisibleAtom} from "./atoms.js";
 import AppNavbar from "./components/AppNavbar.jsx";
 import ListItemContainer from "./components/ListItemContainer.jsx";
-import {iguanaClickedAtom, quickMarkVisibleAtom} from "./atoms.js";
-
-import {useRecoilState, useRecoilValue} from "recoil";
 import ListItemForm from "./components/ListItemCreationForm.jsx";
-import {AiFillPlusSquare} from "react-icons/all";
 
 
 function App() {

@@ -1,7 +1,8 @@
 import React from "react";
+import {useRecoilState} from "recoil";
+
 import "../App.css";
 import {listItemsAtom, replaceItemAtIndex} from "../atoms";
-import {useRecoilState} from "recoil";
 import {PlusTag, Tag} from "./Tag";
 
 
