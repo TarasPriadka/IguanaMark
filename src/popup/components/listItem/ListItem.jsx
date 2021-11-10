@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import "../../App.css";
 import {Card, Col, Container, Row} from "react-bootstrap";
-import {broadcastRemove} from "/src/libs/ui";
+import {removeCurrentPage} from "/src/libs/ui";
 import {listItemsAtom, replaceItemAtIndex} from "../../atoms";
 import {useRecoilState} from "recoil";
 import {AiOutlineFileImage, GrFormClose} from "react-icons/all";
@@ -92,7 +92,7 @@ function ListItem(props) {
                         <button variant="outline-secondary" className="list-button p-0 mb-1" onClick={() => {
                             setMouseIn(false);
                             setListItems(prevList => prevList.filter((e, i) => i !== props.index))
-                            broadcastRemove(props.url);
+                            removeCurrentPage(props.url);
                         }}><GrFormClose style={{fontSize: "1.5em"}}/>
                         </button>
                     </Col>

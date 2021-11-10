@@ -130,13 +130,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 tagAndSave(request.url, request.title, request.desc);
                 notifyBookmarkUpdate(request.url, true);
                 break
-            case "broadcast-remove":
-                // console.log("Removing url: ", request)
-                // chrome.storage.local.get("listItems", (query) => {
-                //     let newItems = query.listItems.filter((item: { url: any; }) => item.url !== request.url);
-                //     console.log(query.listItems, newItems)
-                //     chrome.storage.local.set({listItems: newItems});
-                // })
+            case "remove-bookmark":
+                console.log("Removing url: ", request)
+                chrome.storage.local.get("listItems", (query) => {
+                    let newItems = query.listItems.filter((item: { url: any; }) => item.url !== request.url);
+                    console.log(query.listItems, newItems)
+                    chrome.storage.local.set({listItems: newItems});
+                })
                 notifyBookmarkUpdate(request.url, false);
                 break
         }
