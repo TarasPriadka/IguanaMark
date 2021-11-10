@@ -59,6 +59,19 @@ function ScreenButton() {
             <button
                 className={`quickmarkButton buttonContainer animated ${marked ? "activated" : ""}`}
                 id="saveUrl"
+                onClick={() => {
+                    if (!isDragging)
+                        if (marked) {
+                            removeCurrentPage(window.location.href);
+                        } else {
+                            saveCurrentPage(
+                                window.location.href,
+                                document.title,
+                                document.getElementsByTagName('body')[0].innerText
+                            );
+                        }
+                    isDragging = false;
+                }}>
                 >
                 <img className="mark noselect"
                      src={marked ? markedURL : unmarkedURL}
