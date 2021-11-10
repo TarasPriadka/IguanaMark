@@ -14,20 +14,20 @@
 }
 
 #iguana-root .buttonContainer.show {
-    opacity: 100 !important;
+    opacity: 100;
 }
 
 #iguana-root .quickmarkButton {
-    padding: 0 !important;
-    font-size: 30px !important;
-    border-radius: 50% !important;
-    background-color: #216828 !important;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;
+    padding: 0;
+    font-size: 30px;
+    border-radius: 50%;
+    background-color: #216828;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 #iguana-root .mark {
-    height: 42px !important;
-    background: transparent !important;
-    display: block !important;
-    margin: auto !important;
+    height: 42px;
+    background: transparent;
+    display: block;
+    margin: auto;
 }
