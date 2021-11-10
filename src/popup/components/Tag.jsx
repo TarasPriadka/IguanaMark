@@ -14,12 +14,40 @@ export function Tag(props) {
     const [closeColor, setCloseColor] = useState("white")
 
     const randomColor = () => {
-        return Math.floor(Math.random() * 16777215).toString(16);
+        function randomRGB() {
+            return [
+                Math.floor(Math.random() * 0xFF),
+                Math.floor(Math.random() * 0xFF),
+                Math.floor(Math.random() * 0xFF)
+            ]
+        }
+
+        /**
+         * Luminosity measure for a given rgb value.
+         * Used for contrast measure between colors.
+         */
+        function lum(r, g, b) {
+            return .2126 * Math.pow(r / 255, 2.4)
+                + .7152 * Math.pow(g / 255, 2.4)
+                + .0722 * Math.pow(b / 255, 2.4);
+        }
+
+        // High and low thresholds for luminosity
+        // to prevent too dark or too light colors
+        const LUM_LOW = .01, LUM_HIGH = .5;
+
+        let r = 255, g = 255, b = 255;
+        let l = 1;
+        while (l < LUM_LOW || l > LUM_HIGH) {
+            [r,g,b] = randomRGB();
+            l = lum(r, g, b);
+        }
+        return `rgb(${r}, ${g}, ${b})`
     };
 
     useEffect(() => {
         if (!(props.name in colors)) {
-            let newColor = "#" + randomColor();
+            let newColor = randomColor();
             setColors(currentColors => {
                 let newColors = {
                     ...currentColors

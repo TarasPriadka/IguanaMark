@@ -56,6 +56,7 @@ export const tagColorsAtom = atom({
     key: "tagColors",
     default: {
         "Unread": "#808080",
+        "Read": "#51B848",
         "+": "#0084ff",
         "default": "#51B848"
     }
