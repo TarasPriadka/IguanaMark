@@ -27,6 +27,7 @@
 
 #iguana-root .mark {
     height: 42px;
+    background: transparent;
     display: block;
     margin: auto;
 }

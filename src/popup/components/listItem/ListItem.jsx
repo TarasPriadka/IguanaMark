@@ -14,7 +14,6 @@ function ListItem(props) {
 
     try {
         url = new URL(props.url)
-        // favicon = `https://s2.googleusercontent.com/s2/favicons?domain=${url.hostname}`
         favicon = `https://icons.duckduckgo.com/ip2/${url.hostname}.ico`;
     } catch (_) {
     }

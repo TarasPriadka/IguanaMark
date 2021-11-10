@@ -27,6 +27,20 @@
     transform: scale(1);
 }
 
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -51,6 +65,25 @@
     overflow: hidden;
 }
 
+.iguana-search {
+    display: flex;
+    width: 350px;
+    justify-content: left;
+    align-content: center;
+    padding-right: 8px;
+}
+
+.iguana-searchbar {
+    width: 100% !important;
+}
+
+.iguana-logo {
+    display: flex;
+    width: 45px;
+    justify-content: right;
+    align-content: center;
+}
+
 .read-icon {
     width: 36px;
     height: 36px;
@@ -64,10 +97,6 @@
 .read-icon-box {
     vertical-align: center;
     margin: auto;
-}
-
-input.form-control {
-    width: 290px !important;
 }
 
 .scrollable {

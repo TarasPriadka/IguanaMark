@@ -16,27 +16,10 @@ function ChromeSyncer() {
     //Flag for application readiness. Needed to make sure that the data is fetched when the popup is opened.
     let [appLoaded, setAppLoaded] = useState(false);
 
-    chrome.runtime.onMessage.addListener(request => {
-        try {
-            switch (request.action) {
-                case 'broadcast-update':
-                    if (request.url == window.location.href)
-                        setMarked(request.bookmarkExists);
-                    break;
-
-                case 'quickMarkVisible':
-                    setQuickMarkVisible(request.quickMarkVisible)
-                    break;
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    });
-
     /**
      * Folds a list of atoms into objects with name, getter and setter for easier later updates.
      * @param atoms list of atoms to fold into objects
-     * @returns list of folded items
+     * @returns list of folded items. Looks like {atomName: {value: atomValue, setter: setterFunction}, ...}
      */
     function atomFolder(atoms) {
         let obj = {}
@@ -94,6 +77,7 @@ function ChromeSyncer() {
      */
     useEffect(() => {
         if (appLoaded) {
+            chrome.runtime.sendMessage({action:"quickmark", quickMarkVisible: atoms.quickMarkVisible.value})
             syncChrome();
         } else {
             fetchChrome();

@@ -1,51 +1,42 @@
 import React from "react";
 import {useRecoilState, useSetRecoilState} from "recoil";
 import "../App.css";
-import {Container, Form, FormControl, Navbar} from "react-bootstrap";
-import {iguanaClickedAtom, searchSubmitAtom, searchTextAtom} from "../atoms";
+import {Container, Form, Navbar} from "react-bootstrap";
+import {searchSubmitAtom, searchTextAtom} from "../atoms";
 
 
 function AppNavbar() {
     const [searchText, setSearchText] = useRecoilState(searchTextAtom);
     const setSubmit = useSetRecoilState(searchSubmitAtom);
-    const [iguanaClicked, setIguanaClicked] = useRecoilState(iguanaClickedAtom);
 
-    return <>
-        <Navbar className="p-0 pb-2">
-            <Container>
-                <Form className="d-flex" onSubmit={() => {
-                    setSubmit(true);
-                }}>
-                    <FormControl
-                        type="search"
-                        placeholder="Search"
-                        className="me-2"
-                        aria-label="Search"
-                        onChange={(e) => {
-                            setSearchText(e.target.value);
-                        }}
-                        value={searchText}
+    return <Container className="p-1">
+        <Navbar className="pb-2">
+            <Form className="iguana-search" onSubmit={() => {
+                setSubmit(true);
+            }}>
+                <Form.Control
+                    placeholder="Search"
+                    type="search"
+                    onChange={(e) => {
+                        setSearchText(e.target.value);
+                    }}
+                    value={searchText}
+                    className="form-control iguana-searchbar"
+                />
+            </Form>
 
-                    />
-                </Form>
-                <Container className="" onClick={() => {
-                    setIguanaClicked(!iguanaClicked);
-                }}>
-                    <Navbar.Brand>
-                        <img
-                            src="/logo.svg"
-                            width="50"
-                            height="50"
-                            className="d-inline-block align-top"
-                            alt="Iguana"
-                        />
-                    </Navbar.Brand>
-                </Container>
-            </Container>
+            <Navbar.Brand className="p-0 m-0 iguana-logo">
+                <img
+                    src="/logo.svg"
+                    width="45px"
+                    height="45px"
+                    className="d-inline-block align-top"
+                    alt="Iguana"
+                />
+            </Navbar.Brand>
+
         </Navbar>
-    </>
-
-
+    </Container>
 }
 
 export default AppNavbar;

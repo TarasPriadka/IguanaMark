@@ -1,25 +1,20 @@
 import React from "react";
-
+import {useRecoilState} from "recoil";
+import {AiFillPlusSquare} from "react-icons/all";
 import "./App.css";
 
+import {quickMarkVisibleAtom} from "./atoms.js";
 import AppNavbar from "./components/AppNavbar.jsx";
 import ListItemContainer from "./components/ListItemContainer.jsx";
-import {iguanaClickedAtom, quickMarkVisibleAtom} from "./atoms.js";
-
-import {useRecoilState, useRecoilValue} from "recoil";
-import ListItemForm from "./components/ListItemCreationForm.jsx";
-import {AiFillPlusSquare} from "react-icons/all";
 
 
 function App() {
-    const iguanaClicked = useRecoilValue(iguanaClickedAtom);
     let [quickMarkVisible, setQuickMarkVisible] = useRecoilState(quickMarkVisibleAtom);
 
     return <>
         <div className="container-fluid App p-1">
             <AppNavbar/>
-            {iguanaClicked ? <ListItemForm/> : <></>}
-            <hr/>
+            <hr className="m-0 mb-2"/>
             <div className="scrollable">
                 <ListItemContainer/>
             </div>

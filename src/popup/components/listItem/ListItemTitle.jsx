@@ -5,8 +5,8 @@ import OutsideHandler from "../ClickOutside";
 
 function ListItemTitle(props) {
     const [titleClicked, setTitleClicked] = useState(false);
-    const [newTitle, setNewTitle] = useState("");
     const [title, setTitle] = useState(props.title);
+    const [newTitle, setNewTitle] = useState(title);
 
     useEffect(() => {
         setTitle(props.title);
@@ -26,7 +26,7 @@ function ListItemTitle(props) {
             <OutsideHandler
                 onOutside={() => {
                     setTitleClicked(false);
-                    setNewTitle("");
+                    setNewTitle(title);
                 }}
             >
                 <span className="sleek-input title-input">
