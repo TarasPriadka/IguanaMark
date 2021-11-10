@@ -31,6 +31,7 @@ function ListItemContainer() {
             title={linkObj["title"]}
             url={linkObj["url"]}
             tags={linkObj["tags"]}
+            read={linkObj["read"]}
             index={index}
         />
     });

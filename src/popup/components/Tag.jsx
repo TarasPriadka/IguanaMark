@@ -1,16 +1,29 @@
 import React, {useEffect, useState} from "react";
-import "../App.css";
 import {Badge} from "react-bootstrap";
-import {searchTextAtom, tagColorsAtom} from "../atoms";
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {GrFormClose} from "react-icons/all";
 import {IconContext} from "react-icons";
+import {GrFormClose} from "react-icons/all";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import "../App.css";
+import {searchTextAtom, tagColorsAtom} from "../atoms";
 import OutsideHandler from "./ClickOutside"
 
 export function Tag(props) {
     const [colors, setColors] = useRecoilState(tagColorsAtom)
     const [myColor, setMyColor] = useState(colors["Default"]);
     const setSearchText = useSetRecoilState(searchTextAtom);
+    let removeIcon = <></>
+    if (props.removeTag) {
+        removeIcon = (<IconContext.Provider
+            value={{color: 'white'}}
+        >
+            <GrFormClose
+                className="tag-button-close"
+                onClick={() => {
+                    props.removeTag(props.name)
+                }}
+            />
+        </IconContext.Provider>)
+    }
 
     const randomColor = () => {
         function randomRGB() {
@@ -73,17 +86,7 @@ export function Tag(props) {
                   }}
     >
         {props.name}
-        <IconContext.Provider
-            value={{color: 'white'}}
-        >
-            <GrFormClose
-                className="tag-button-close"
-                onClick={() => {
-                    props.removeTag(props.name)
-                }}
-            />
-        </IconContext.Provider>
-
+        {removeIcon}
     </Badge>
 }
 

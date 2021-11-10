@@ -31,9 +31,10 @@ function TagBar(props) {
     let badges = listItems[props.index]['tags'].map(tagName => {
         return <span key={tagName}><Tag name={tagName} removeTag={removeTag}/>{' '}</span>;
     });
-
+    let readTag = listItems[props.index]['read'] ? "Read" : "Unread"
 
     return <div className="tag-bar">
+        <span key={readTag}><Tag name={readTag}/>{' '}</span>
         {badges}
         <PlusTag key="plus" addTag={addTag}/>
     </div>

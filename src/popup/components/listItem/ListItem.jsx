@@ -33,16 +33,9 @@ function ListItem(props) {
     }
 
     const followLink = () => {
-        let newValue = listItems[props.index]
         const newList = replaceItemAtIndex(listItems, props.index, {
-            ...newValue,
-            tags: newValue.tags.map((tag) => {
-                if (tag === "Unread") {
-                    return "Read";
-                } else {
-                    return tag;
-                }
-            })
+            ...listItems[props.index],
+            read: true
         });
 
         chrome.storage.local.set({
