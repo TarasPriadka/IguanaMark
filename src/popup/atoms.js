@@ -42,19 +42,22 @@ export const listItemsAtom = atom({
 //     "title": "Google",
 //     "url": "https://drive.google.com/drive/u/0/my-drive",
 //     "desc": "Google is a search engine for searching about engines.",
-//     "tags": ["Unread", "Search Engine", "Google"]
+//     "tags": ["Unread", "Search Engine", "Google"],
+//     "read": false,
 // },
 // {
 //     "title": "Yahoo",
 //     "url": "https://www.yahoo.com",
 //     "desc": "Yahoo is a search engine for searching but worse.",
 //     "tags": ["Unread", "Search Engine"]
+//     "read": false,
 // },
 // {
 //     "title": "Facebook",
 //     "url": "https://facebook.com",
 //     "desc": "Meta... I hate meta.",
 //     "tags": ["Unread", "Social"]
+//     "read": false,
 // }
 
 export const tagColorsAtom = atom({

@@ -14,11 +14,13 @@ function ListItemContainer() {
         if (searchText === "") {
             return true;
         } else {
-            if (searchText === "Unread" || searchText ==="Read"){
-                return linkObj.tags.includes(searchText); //make sure to find exact match on Unread/Read.
+            let searchLower = searchText.toLowerCase();
+            if (searchLower === "read"){
+                return linkObj.read
+            } else if (searchLower === "unread") {
+                return !linkObj.read
             }
 
-            let searchLower = searchText.toLowerCase();
             let inTitle = linkObj.title.toLowerCase().includes(searchLower);
             let inTags = linkObj.tags.some(tag => tag.toLowerCase().includes(searchLower));
 
@@ -36,6 +38,7 @@ function ListItemContainer() {
             title={linkObj["title"]}
             url={linkObj["url"]}
             tags={linkObj["tags"]}
+            read={linkObj["read"]}
             index={index}
         />
     });

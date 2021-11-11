@@ -100,11 +100,11 @@ function tagAndSave(url: String, title: String, desc: String) {
             )
         );
         let tags = tagger.tagPageRaw(url, title, desc)
-        tags.add('Unread')
         let newItems = [{
             "url": url,
             "title": title,
             "desc": desc,
+            "read": false,
             "tags": Array.from(tags)
         }, ...listItems["listItems"]];
         chrome.storage.local.set({listItems: newItems});
