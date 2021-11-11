@@ -20,8 +20,6 @@ function ListItemTitle(props) {
             }} style={{cursor: "pointer"}}>
                 {title}
             </span>
-
-        }
     </span>
     // return <span className="m-0">
     //     {!titleClicked ?

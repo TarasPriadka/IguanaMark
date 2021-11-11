@@ -1,6 +1,6 @@
 {
   "name": "iguanamark",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "",
   "scripts": {
     "test": "TS_NODE_PROJECT=\"tsconfig.testing.json\" mocha -r ts-node/register test/**/*.ts",

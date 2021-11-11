@@ -1,7 +1,7 @@
-import Draggable from 'react-draggable';
 import React, {useEffect, useState} from "react";
-import "./ScreenButton.css";
+import Draggable from 'react-draggable';
 import {removeCurrentPage, saveCurrentPage} from "../../libs/ui";
+import "./ScreenButton.css";
 
 /**
  * On-screen quick-mark button for creating bookmarks quickly
@@ -15,14 +15,19 @@ function ScreenButton() {
 
     useEffect(() => {
         chrome.storage.local.get(["listItems", "quickMarkVisible"], (fetched) => {
-            for (const listItem of fetched['listItems']) {
-                if (listItem.url === window.location.href) {
-                    setMarked(true);
-                    break;
+            if (fetched['listItems']) {
+                for (const listItem of fetched['listItems']) {
+                    if (listItem.url === window.location.href) {
+                        setMarked(true);
+                        break;
+                    }
                 }
             }
-
-            setQuickMarkVisible(fetched.quickMarkVisible);
+            if (fetched.quickMarkVisible === undefined) {
+                setQuickMarkVisible(true);
+            } else {
+                setQuickMarkVisible(fetched.quickMarkVisible);
+            }
         });
         addListeners();
     }, []);
