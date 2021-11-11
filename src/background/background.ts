@@ -83,24 +83,6 @@ function notifyQuickMarkVisible(tabId: number) {
     })
 }
 
-// /**
-//  * Listeners for created and removed bookmarks that notify the content pages
-//  */
-// bookmarkManager.onCreated.addListener(url => {
-//     notifyBookmarkUpdate(url, true)
-// })
-// bookmarkManager.onRemoved.addListener(url => {
-//     notifyBookmarkUpdate(url, false)
-// })
-//
-// /**
-//  * Propagate updates during tab switches
-//  */
-// chrome.tabs.onActivated.addListener((activeInfo) => {
-//     notifyBookmarkUpdateCurrent()
-//     notifyQuickMarkVisible(activeInfo.tabId)
-// })
-
 function tagAndSave(url: String, title: String, desc: String) {
     chrome.storage.local.get("listItems", (listItems) => {
         console.log(listItems)
@@ -159,26 +141,3 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         console.error(e)
     }
 });
-
-// /**
-//  * Finds a saved bookmark or the proper category for the new bookmark, and saves it there.
-//  *
-//  * @param createInfo information about the new bookmark
-//  */
-// function saveBookmark(createInfo: SmartCreateInfo) {
-//     let allBookmarks = bookmarkManager.getAllBookmarks();
-//     let allURLs = allBookmarks.map(b => b.url)
-//
-//     let category = "Unread";
-//     bookmarkManager.createInFolder(createInfo, [category]).then()
-//
-//     // if (closestURLs.length > 0) {
-//     //     let bookmark = bookmarkManager.getByURL(closestURLs[0]);
-//     //     if (bookmark.length > 0) {
-//     //         createInfo.parentId = bookmark[0].parentId
-//     //         bookmarkManager.create(createInfo)
-//     //     }
-//     // } else {
-//     //
-//     // }
-// }
