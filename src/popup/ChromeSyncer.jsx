@@ -16,6 +16,20 @@ function ChromeSyncer() {
     //Flag for application readiness. Needed to make sure that the data is fetched when the popup is opened.
     let [appLoaded, setAppLoaded] = useRecoilState(appLoadedAtom);
 
+    chrome.runtime.onMessage.addListener(request => {
+        try {
+            switch (request.action) {
+                case 'broadcast-update':
+                    chrome.storage.local.get("listItems", function (result) {
+                        atoms.listItems.setter(result.listItems);
+                    });
+                    break;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    });
+
     /**
      * Folds a list of atoms into objects with name, getter and setter for easier later updates.
      * @param atoms list of atoms to fold into objects
@@ -59,6 +73,7 @@ function ChromeSyncer() {
             }
             setAppLoaded(true);
         });
+
 
     }
 

@@ -1,15 +1,18 @@
 import React from "react";
-import {useRecoilState, useRecoilValue} from "recoil";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {AiFillPlusSquare} from "react-icons/all";
 import "./App.css";
 
-import {appLoadedAtom, quickMarkVisibleAtom} from "./atoms.js";
+import {getCurrentTab} from "../background/background";
+import {appLoadedAtom, listItemsAtom, quickMarkVisibleAtom} from "./atoms.js";
 import AppNavbar from "./components/AppNavbar.jsx";
 import ListItemContainer from "./components/ListItemContainer.jsx";
+import {saveCurrentPage} from "../libs/ui";
 
 
 function App() {
     let [quickMarkVisible, setQuickMarkVisible] = useRecoilState(quickMarkVisibleAtom);
+    const setListItems = useSetRecoilState(listItemsAtom);
     let appLoaded = useRecoilValue(appLoadedAtom);
 
     return (!appLoaded ? <></> : <>
@@ -29,7 +32,14 @@ function App() {
                 Quick Mark Button
             </div>
             <div className="col">
-                <AiFillPlusSquare className="add-button"/>
+                <AiFillPlusSquare className="add-button" onClick={() => {
+                    getCurrentTab().then((tab) => {
+                        chrome.tabs.sendMessage(tab.id, {action: "getCurDocument"}, (docText) => {
+                            saveCurrentPage(tab.url, tab.title, docText, tab);
+                            // setListItems(newListItems)
+                        })
+                    });
+                }}/>
             </div>
         </div>
     </>)

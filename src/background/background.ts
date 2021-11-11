@@ -9,7 +9,7 @@ let bookmarkManager = new BookmarkManager()
  * Returns a promise with the current active tab.
  * @return tab active tab promise.
  */
-async function getCurrentTab(): Promise<chrome.tabs.Tab> {
+export async function getCurrentTab(): Promise<chrome.tabs.Tab> {
     let [tab] = await chrome.tabs.query({
         active: true,
         currentWindow: true
@@ -27,14 +27,19 @@ async function getCurrentTab(): Promise<chrome.tabs.Tab> {
  */
 function notifyBookmarkUpdate(url: string, bookmarkExists: boolean) {
     getCurrentTab().then(tab => {
-        if (tab && tab.id)
+        if (tab && tab.id) {
+            let message = {
+                action: "broadcast-update",
+                url: url,
+                bookmarkExists: bookmarkExists
+            }
             chrome.tabs.sendMessage(
                 tab.id,
-                {
-                    action: "broadcast-update",
-                    url: url,
-                    bookmarkExists: bookmarkExists
-                });
+                message
+            );
+
+            chrome.runtime.sendMessage(message)
+        }
     });
 }
 
@@ -68,30 +73,12 @@ function notifyQuickMarkVisible(tabId: number) {
     })
 }
 
-// /**
-//  * Listeners for created and removed bookmarks that notify the content pages
-//  */
-// bookmarkManager.onCreated.addListener(url => {
-//     notifyBookmarkUpdate(url, true)
-// })
-// bookmarkManager.onRemoved.addListener(url => {
-//     notifyBookmarkUpdate(url, false)
-// })
-//
-// /**
-//  * Propagate updates during tab switches
-//  */
-// chrome.tabs.onActivated.addListener((activeInfo) => {
-//     notifyBookmarkUpdateCurrent()
-//     notifyQuickMarkVisible(activeInfo.tabId)
-// })
-
 function tagAndSave(url: String, title: String, desc: String) {
     chrome.storage.local.get("listItems", (listItems) => {
         console.log(listItems)
         const tagger = new PageTagger(
             listItems["listItems"].map(
-                (a: {[p: string]: any}) => new Page(
+                (a: { [p: string]: any }) => new Page(
                     a.url,
                     a.title,
                     a.desc,
@@ -107,6 +94,7 @@ function tagAndSave(url: String, title: String, desc: String) {
             "read": false,
             "tags": Array.from(tags)
         }, ...listItems["listItems"]];
+
         chrome.storage.local.set({listItems: newItems});
     })
 }
@@ -119,7 +107,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     try {
         switch (request.action) {
             case "quickmark":
-                console.log(request)
                 getCurrentTab().then(tab => {
                     notifyQuickMarkVisible(tab.id!);
                 })
@@ -127,8 +114,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 break
             case "save-bookmark":
                 console.log("Adding url: ", request);
-                tagAndSave(request.url, request.title, request.desc);
-                notifyBookmarkUpdate(request.url, true);
+                let newListItems = tagAndSave(request.url, request.title, request.desc);
+                // notifyBookmarkUpdate(request.url, true);
                 break
             case "remove-bookmark":
                 console.log("Removing url: ", request)

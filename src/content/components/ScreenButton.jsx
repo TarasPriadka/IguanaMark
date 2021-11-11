@@ -27,6 +27,16 @@ function ScreenButton() {
         addListeners();
     }, []);
 
+
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        console.log(message, sender, sendResponse);
+        switch (message.action) {
+            case "getCurDocument":
+                sendResponse(document.getElementsByTagName('body')[0].innerText);
+                break;
+        }
+    })
+
     /**
      * Add listeners for outside events that change content state
      */
