@@ -15,21 +15,15 @@ function ScreenButton() {
 
     useEffect(() => {
         chrome.storage.local.get(["listItems", "quickMarkVisible"], (fetched) => {
-            if (fetched['listItems']) {
-                for (const listItem of fetched['listItems']) {
-                    if (listItem.url === window.location.href) {
-                        setMarked(true);
-                        break;
-                    }
+            for (const listItem of fetched.listItems) {
+                if (listItem.url === window.location.href) {
+                    setMarked(true);
+                    break;
                 }
             }
-            if (fetched.quickMarkVisible === undefined) {
-                setQuickMarkVisible(true);
-            } else {
-                setQuickMarkVisible(fetched.quickMarkVisible);
-            }
+            setQuickMarkVisible(fetched.quickMarkVisible);
+            addListeners();
         });
-        addListeners();
     }, []);
 
     /**
@@ -37,7 +31,6 @@ function ScreenButton() {
      */
     const addListeners = () => {
         chrome.runtime.onMessage.addListener(request => {
-            console.log("Here:", request)
             try {
                 switch (request.action) {
                     case 'broadcast-update':
