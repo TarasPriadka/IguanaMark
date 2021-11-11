@@ -127,6 +127,7 @@ code {
 }
 
 .tag {
+    cursor: pointer;
     height: 20px;
     white-space: nowrap;
 }

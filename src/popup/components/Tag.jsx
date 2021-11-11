@@ -80,12 +80,11 @@ export function Tag(props) {
                           node.style.setProperty("background-color", myColor, "important");
                       }
                   }}
-
-                  onClick={() => {
-                      setSearchText(props.name)
-                  }}
     >
-        {props.name}
+        <span onClick={() => {
+            setSearchText(props.name)
+        }}> {props.name} </span>
+
         {removeIcon}
     </Badge>
 }
