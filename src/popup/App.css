@@ -177,6 +177,7 @@ code {
 }
 
 .tag-creation {
+    height:20px;
     color: white;
     width: 7em;
 }

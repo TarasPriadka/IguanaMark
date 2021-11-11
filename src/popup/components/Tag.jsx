@@ -104,7 +104,7 @@ export function PlusTag(props) {
 
     let color = colors["+"];
 
-    return <Badge pill className="tag"
+    return <Badge pill className={`tag ${creatingTag ? "pt-0" : ""}`}
                   ref={(node) => {
                       if (node) {
                           node.style.setProperty("background-color", color, "important");
