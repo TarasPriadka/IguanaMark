@@ -1,6 +1,5 @@
 import React from "react";
 import {useRecoilState, useRecoilValue} from "recoil";
-import {AiFillPlusSquare} from "react-icons/all";
 import "./App.css";
 
 import {appLoadedAtom, quickMarkVisibleAtom} from "./atoms.js";
@@ -28,9 +27,9 @@ function App() {
                 <span className="animated"/>
                 Quick Mark Button
             </div>
-            <div className="col">
-                <AiFillPlusSquare className="add-button"/>
-            </div>
+            {/*<div className="col">*/}
+            {/*    <AiFillPlusSquare className="add-button"/>*/}
+            {/*</div>*/}
         </div>
     </>)
 }

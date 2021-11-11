@@ -5,6 +5,21 @@ import {Page, PageTagger} from "../libs/ai/tagger";
 
 let bookmarkManager = new BookmarkManager()
 
+chrome.runtime.onInstalled.addListener(() => {
+    let itemsToInit = {
+        quickMarkVisible: true,
+        listItems: [],
+        tagColors: {
+            "Unread": "#808080",
+            "Read": "#51B848",
+            "+": "#0084ff",
+            "default": "#51B848"
+        }
+    }
+
+    chrome.storage.local.set(itemsToInit);
+});
+
 /**
  * Returns a promise with the current active tab.
  * @return tab active tab promise.
@@ -91,7 +106,7 @@ function tagAndSave(url: String, title: String, desc: String) {
         console.log(listItems)
         const tagger = new PageTagger(
             listItems["listItems"].map(
-                (a: {[p: string]: any}) => new Page(
+                (a: { [p: string]: any }) => new Page(
                     a.url,
                     a.title,
                     a.desc,

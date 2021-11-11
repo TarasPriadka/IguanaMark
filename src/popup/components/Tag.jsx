@@ -80,12 +80,11 @@ export function Tag(props) {
                           node.style.setProperty("background-color", myColor, "important");
                       }
                   }}
-
-                  onClick={() => {
-                      setSearchText(props.name)
-                  }}
     >
-        {props.name}
+        <span onClick={() => {
+            setSearchText(props.name)
+        }}> {props.name} </span>
+
         {removeIcon}
     </Badge>
 }
@@ -104,7 +103,7 @@ export function PlusTag(props) {
 
     let color = colors["+"];
 
-    return <Badge pill className="tag"
+    return <Badge pill className={`tag ${creatingTag ? "pt-0" : ""}`}
                   ref={(node) => {
                       if (node) {
                           node.style.setProperty("background-color", color, "important");

@@ -127,6 +127,8 @@ code {
 }
 
 .tag {
+    cursor: pointer;
+    height: 20px;
     white-space: nowrap;
 }
 
@@ -176,6 +178,7 @@ code {
 }
 
 .tag-creation {
+    height:20px;
     color: white;
     width: 7em;
 }

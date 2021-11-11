@@ -68,15 +68,15 @@ function ListItem(props) {
                     </Col>
                     <Col xs={9} className="m-auto p-0">
                         <Container flex className="p-0">
-                            <ListItemTitle title={props.title} updateTitle={updateTitle}/>
-                            {" "}
-                            {url !== "" && mouseIn ?
-                                <span>
-                                     - <a href={props.url} onClick={followLink}
-                                          className="font-weight-light text-secondary"
-                                >{url.hostname}</a></span> :
-                                <span></span>
-                            }
+                            <ListItemTitle title={props.title} updateTitle={updateTitle} followLink={followLink}/>
+                            {/*{" "}*/}
+                            {/*{url !== "" && mouseIn ?*/}
+                            {/*    <span>*/}
+                            {/*         - <a href={props.url} onClick={followLink}*/}
+                            {/*              className="font-weight-light text-secondary"*/}
+                            {/*    >{url.hostname}</a></span> :*/}
+                            {/*    <span></span>*/}
+                            {/*}*/}
 
                         </Container>
 
