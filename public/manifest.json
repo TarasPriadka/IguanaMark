@@ -19,10 +19,7 @@
     "service_worker": "background.js"
   },
   "permissions": [
-    "scripting",
-    "bookmarks",
-    "storage",
-    "tabs"
+    "storage"
   ],
   "content_scripts": [
     {

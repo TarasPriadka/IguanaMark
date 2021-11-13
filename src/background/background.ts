@@ -1,9 +1,9 @@
 // *----*----*----* Globals *----*----*----*
 
-import {BookmarkManager} from "../libs/bookmarks/bookmarkManager";
+// import {BookmarkManager} from "../libs/bookmarks/bookmarkManager";
 import {Page, PageTagger} from "../libs/ai/tagger";
 
-let bookmarkManager = new BookmarkManager()
+// let bookmarkManager = new BookmarkManager()
 
 chrome.runtime.onInstalled.addListener(() => {
     let itemsToInit = {
